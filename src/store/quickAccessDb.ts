@@ -4,10 +4,9 @@ import { Feature } from './types';
 export async function migrateQuickAccessDb(db: SQLiteDatabase) {
     await db.execAsync(`
         CREATE TABLE IF NOT EXISTS quick_access (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            id_feature INTEGER NOT NULL UNIQUE,
+            idFeature INTEGER PRIMARY KEY,
             title TEXT NOT NULL,
-            group_name TEXT NOT NULL,
+            featureGroup TEXT NOT NULL,
             role TEXT NOT NULL,
             is_active BOOLEAN NOT NULL,
             icon TEXT NOT NULL,
@@ -19,9 +18,9 @@ export async function migrateQuickAccessDb(db: SQLiteDatabase) {
 export async function insertQuickAccessFeature(db: SQLiteDatabase, feature: Feature) {
     try {
         await db.runAsync(
-            `INSERT INTO quick_access (id_feature, title, group_name, role, is_active, icon)
+            `INSERT INTO quick_access (idFeature, title, featureGroup, role, is_active, icon)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [feature.id_feature, feature.title, feature.group, JSON.stringify(feature.role), feature.is_active ? 1 : 0, feature.icon]
+            [feature.idFeature, feature.title, feature.featureGroup, JSON.stringify(feature.role), feature.is_active ? 1 : 0, feature.icon]
         );
         return true;
     } catch (error) {
@@ -30,11 +29,11 @@ export async function insertQuickAccessFeature(db: SQLiteDatabase, feature: Feat
     }
 }
 
-export async function deleteQuickAccessFeature(db: SQLiteDatabase, id_feature: number) {
+export async function deleteQuickAccessFeature(db: SQLiteDatabase, idFeature: number) {
     try {
         await db.runAsync(
-            `DELETE FROM quick_access WHERE id_feature = ?`,
-            [id_feature]
+            `DELETE FROM quick_access WHERE idFeature = ?`,
+            [idFeature]
         );
         return true;
     } catch (error) {
@@ -46,16 +45,16 @@ export async function deleteQuickAccessFeature(db: SQLiteDatabase, id_feature: n
 export async function getQuickAccessFeatures(db: SQLiteDatabase): Promise<Feature[]> {
     try {
         const result = await db.getAllAsync(`
-            SELECT id_feature, title, group_name as group, role, is_active, icon 
+            SELECT idFeature, title, featureGroup as featureGroup, role, is_active, icon 
             FROM quick_access 
             WHERE is_active = 1 
             ORDER BY created_at ASC
         `);
 
         return result.map((row: any) => ({
-            id_feature: row.id_feature,
+            idFeature: row.idFeature,
             title: row.title,
-            group: row.group,
+            featureGroup: row.featureGroup,
             role: JSON.parse(row.role),
             is_active: row.is_active === 1,
             icon: row.icon
@@ -66,11 +65,11 @@ export async function getQuickAccessFeatures(db: SQLiteDatabase): Promise<Featur
     }
 }
 
-export async function isFeatureInQuickAccess(db: SQLiteDatabase, id_feature: number): Promise<boolean> {
+export async function isFeatureInQuickAccess(db: SQLiteDatabase, idFeature: number): Promise<boolean> {
     try {
         const result = await db.getFirstAsync(
-            `SELECT id FROM quick_access WHERE id_feature = ?`,
-            [id_feature]
+            `SELECT idFeature FROM quick_access WHERE idFeature = ?`,
+            [idFeature]
         );
         return result !== null;
     } catch (error) {
@@ -79,7 +78,7 @@ export async function isFeatureInQuickAccess(db: SQLiteDatabase, id_feature: num
     }
 }
 
-export async function updateQuickAccessFeature(db: SQLiteDatabase, id_feature: number, updates: Partial<Feature>) {
+export async function updateQuickAccessFeature(db: SQLiteDatabase, idFeature: number, updates: Partial<Feature>) {
     try {
         const setClause = [];
         const values = [];
@@ -88,9 +87,9 @@ export async function updateQuickAccessFeature(db: SQLiteDatabase, id_feature: n
             setClause.push('title = ?');
             values.push(updates.title);
         }
-        if (updates.group) {
-            setClause.push('group_name = ?');
-            values.push(updates.group);
+        if (updates.featureGroup) {
+            setClause.push('featureGroup = ?');
+            values.push(updates.featureGroup);
         }
         if (updates.role) {
             setClause.push('role = ?');
@@ -106,9 +105,9 @@ export async function updateQuickAccessFeature(db: SQLiteDatabase, id_feature: n
         }
 
         if (setClause.length > 0) {
-            values.push(id_feature);
+            values.push(idFeature);
             await db.runAsync(
-                `UPDATE quick_access SET ${setClause.join(', ')} WHERE id_feature = ?`,
+                `UPDATE quick_access SET ${setClause.join(', ')} WHERE idFeature = ?`,
                 values
             );
             return true;

@@ -24,6 +24,15 @@
       ],
       "@styles/*": [
         "src/styles/*"
+      ],
+      "@navigation/*": [
+        "src/navigation/*"
+      ],
+      "@store/*": [
+        "src/store/*"
+      ],
+      "@providers/*": [
+        "src/providers/*"
       ]
     }
   },

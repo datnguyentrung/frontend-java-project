@@ -9,11 +9,7 @@ import taekwondo from '@assets/taekwondo.jpg';
  * Component tạo background cho header với hình ảnh và gradient
  * Hiệu ứng: hình taekwondo nhạt dần từ trên xuống dưới
  */
-interface HeaderBackgroundProps {
-    route: string;
-}
-
-export default function HeaderBackground({ route }: HeaderBackgroundProps) {
+export default function HeaderBackground({ route }: { route: string }) {
     return (
         <View style={[styles.container, { height: route === 'Home' ? 400 : 130 }]}>
             <ImageBackground
@@ -60,6 +56,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         overflow: 'hidden',
+        borderBottomRightRadius: 30,
+        borderBottomLeftRadius: 30,
         // position: 'absolute', // Thay đổi từ flex: 1 thành position absolute
         // top: 0,
         // left: 0,

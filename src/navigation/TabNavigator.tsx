@@ -47,7 +47,7 @@ const TabIcon = ({ IconComponent, focused, color, alwaysActive = false, noLabel 
 const TabNavigator = () => {
     return (
         <Tab.Navigator
-            screenOptions={({ route }) => ({
+            screenOptions={() => ({
                 // Cấu hình chung cho tất cả tabs
                 tabBarActiveTintColor: '#b10000ff', // Màu khi tab được chọn
                 tabBarInactiveTintColor: '#666',  // Màu khi tab không được chọn

@@ -15,10 +15,20 @@ module.exports = function (api) {
                         '@assets': './src/assets',
                         '@screens': './src/screens',
                         '@styles': './src/styles',
+                        '@navigation': './src/navigation',
+                        '@store': './src/store',
+                        '@providers': './src/providers'
                     },
                 },
             ],
-            'react-native-worklets/plugin', // <-- thêm dòng này để thay cho reanimated/plugin
+            'react-native-reanimated/plugin', // <-- thay đổi để sử dụng reanimated plugin
+            [
+                'module:react-native-dotenv',
+                {
+                    moduleName: '@env',
+                    path: '.env',   // 👈 chỉ rõ file .env nằm ở root (cùng cấp babel.config.js và package.json)
+                },
+            ],
         ],
     };
 };
