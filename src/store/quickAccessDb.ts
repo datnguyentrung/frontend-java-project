@@ -7,8 +7,8 @@ export async function migrateQuickAccessDb(db: SQLiteDatabase) {
             idFeature INTEGER PRIMARY KEY,
             title TEXT NOT NULL,
             featureGroup TEXT NOT NULL,
-            role TEXT NOT NULL,
-            is_active BOOLEAN NOT NULL,
+            roles TEXT NOT NULL,
+            active BOOLEAN NOT NULL,
             icon TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
@@ -18,9 +18,9 @@ export async function migrateQuickAccessDb(db: SQLiteDatabase) {
 export async function insertQuickAccessFeature(db: SQLiteDatabase, feature: Feature) {
     try {
         await db.runAsync(
-            `INSERT INTO quick_access (idFeature, title, featureGroup, role, is_active, icon)
+            `INSERT INTO quick_access (idFeature, title, featureGroup, roles, active, icon)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [feature.idFeature, feature.title, feature.featureGroup, JSON.stringify(feature.role), feature.is_active ? 1 : 0, feature.icon]
+            [feature.idFeature, feature.title, feature.featureGroup, JSON.stringify(feature.roles), feature.active ? 1 : 0, feature.icon]
         );
         return true;
     } catch (error) {
@@ -45,9 +45,9 @@ export async function deleteQuickAccessFeature(db: SQLiteDatabase, idFeature: nu
 export async function getQuickAccessFeatures(db: SQLiteDatabase): Promise<Feature[]> {
     try {
         const result = await db.getAllAsync(`
-            SELECT idFeature, title, featureGroup as featureGroup, role, is_active, icon 
+            SELECT idFeature, title, featureGroup as featureGroup, roles, active, icon 
             FROM quick_access 
-            WHERE is_active = 1 
+            WHERE active = 1 
             ORDER BY created_at ASC
         `);
 
@@ -55,8 +55,8 @@ export async function getQuickAccessFeatures(db: SQLiteDatabase): Promise<Featur
             idFeature: row.idFeature,
             title: row.title,
             featureGroup: row.featureGroup,
-            role: JSON.parse(row.role),
-            is_active: row.is_active === 1,
+            roles: JSON.parse(row.roles),
+            active: row.active === 1,
             icon: row.icon
         }));
     } catch (error) {
@@ -91,13 +91,13 @@ export async function updateQuickAccessFeature(db: SQLiteDatabase, idFeature: nu
             setClause.push('featureGroup = ?');
             values.push(updates.featureGroup);
         }
-        if (updates.role) {
-            setClause.push('role = ?');
-            values.push(JSON.stringify(updates.role));
+        if (updates.roles) {
+            setClause.push('roles = ?');
+            values.push(JSON.stringify(updates.roles));
         }
-        if (updates.is_active !== undefined) {
-            setClause.push('is_active = ?');
-            values.push(updates.is_active ? 1 : 0);
+        if (updates.active !== undefined) {
+            setClause.push('active = ?');
+            values.push(updates.active ? 1 : 0);
         }
         if (updates.icon) {
             setClause.push('icon = ?');
