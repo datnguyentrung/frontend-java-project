@@ -13,7 +13,7 @@ import {
     GraduationCap, BellElectric, AlarmClockCheck,
     UserRoundPlus, Users, Settings, Calendar, Zap,
     Trophy, Clock, Target, BarChart3, MoreHorizontal,
-    BookOpen, UserCheck, CalendarDays
+    BookOpen, UserCheck, CalendarDays, Building
 } from 'lucide-react-native';
 import FeaturesGroup from './FeaturesGroup';
 import Divider from '@/components/layout/Divider';
@@ -46,6 +46,7 @@ const iconMap: { [key: string]: any } = {
     Users: Users,
     Settings: Settings,
     BookOpen: BookOpen,
+    Building: Building,
 };
 
 /**
@@ -67,9 +68,9 @@ export default function FeaturesScreen() {
     const fetchFeaturesData = useCallback(async (showLoading = true) => {
         try {
             if (showLoading) setLoading(true);
-            console.log('🔄 Fetching features data...');
+            // console.log('🔄 Fetching features data...');
             const data = await getAllFeatures();
-            console.log('✅ Features data received:', data);
+            // console.log('✅ Features data received:', data);
             setFeaturesData(data);
         } catch (error) {
             console.error('❌ Error fetching features:', error);

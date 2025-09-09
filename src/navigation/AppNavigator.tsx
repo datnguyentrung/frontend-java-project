@@ -11,6 +11,9 @@ import HeaderBackground from '@/components/layout/HeaderApp/HeaderBackground';
 // Tạo Stack Navigator
 const Stack = createStackNavigator();
 
+// Import icon AntDesign
+import AntDesign from '@expo/vector-icons/AntDesign'
+
 /**
  * AppNavigator - Navigator chính của app
  * Chứa TabNavigator và tất cả feature screens
@@ -54,8 +57,8 @@ const AppNavigator = () => {
                 name="StudentAttendanceScreen"
                 component={StudentAttendanceScreen}
                 options={{
-                    title: 'Điểm danh học viên',
-                    headerBackTitle: 'Quay lại'
+                    title: "Điểm danh học viên",
+                    headerBackTitle: "Quay lại",
                 }}
             />
 

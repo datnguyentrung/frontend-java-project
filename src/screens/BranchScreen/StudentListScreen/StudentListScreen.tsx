@@ -5,9 +5,9 @@ import taekwondo from '@assets/taekwondo.jpg';
 import SearchBar from '@/components/common/SearchBar';
 
 interface Student {
-    student_name: string;
-    student_level: string;
-    branch_id: number;
+    name: string;
+    studentLevel: string;
+    branch: number;
 }
 
 export default function StudentListScreen({ branch_id }: { branch_id: number | null }) {
@@ -54,7 +54,7 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
 
             <View style={styles.studentInfo}>
                 <View style={styles.nameSection}>
-                    <Text style={styles.studentName}>{item.student_name}</Text>
+                    <Text style={styles.studentName}>{item.name}</Text>
                     <View style={styles.nameUnderline} />
                 </View>
 
@@ -65,7 +65,7 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
                         </View>
                         <View style={styles.levelTextContainer}>
                             <Text style={styles.levelLabel}>Cấp đai</Text>
-                            <Text style={styles.studentLevel}>{item.student_level}</Text>
+                            <Text style={styles.studentLevel}>{item.studentLevel}</Text>
                         </View>
                     </View>
 
@@ -76,7 +76,7 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
                         <View style={styles.branchTextContainer}>
                             {/* <Text style={styles.branchLabel}>CS</Text> */}
                             <View style={styles.branchBadge}>
-                                <Text style={styles.branchText}>{item.branch_id}</Text>
+                                <Text style={styles.branchText}>{item.branch}</Text>
                             </View>
                         </View>
                     </View>
@@ -121,9 +121,9 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
             </View>
 
             <FlatList
-                data={listStudent.sort((a, b) => a.student_name.localeCompare(b.student_name))}
+                data={listStudent.sort((a, b) => a.name.localeCompare(b.name))}
                 renderItem={renderStudentItem}
-                keyExtractor={(item, index) => `${item.student_name}-${index}`}
+                keyExtractor={(item, index) => `${item.name}-${index}`}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>

@@ -1,4 +1,5 @@
 const API_PREFIX = "/api/v1";
+import { MarkAttendance, MarkEvaluation } from "../store/types";
 
 export const endpoints = {
     auth: {
@@ -23,12 +24,20 @@ export const endpoints = {
         detail: (id: string | number) => `${API_PREFIX}/branches/${id}`,
     },
     classSessions: {
-        list: `${API_PREFIX}/class-sessions/`,
+        list: `${API_PREFIX}/class-sessions`,
         detail: (id: string | number) => `${API_PREFIX}/class-sessions/${id}`,
     },
     students: {
-        list: `${API_PREFIX}/students/`,
+        list: `${API_PREFIX}/students`,
         detail: (id: string | number) => `${API_PREFIX}/students/${id}`,
         branch: (id: string | number) => `${API_PREFIX}/students/branch/${id}`,
+        classSession: (id: string | number) => `${API_PREFIX}/students/class-session/${id}`,
+    },
+    basicAttendance: {
+        list: `${API_PREFIX}/basic-attendance`,
+        detail: (id: string | number) => `${API_PREFIX}/basic-attendance/${id}`,
+        classSession: (id: string | number) => `${API_PREFIX}/basic-attendance/class-session/${id}`,
+        attendance: (attend: MarkAttendance) => `${API_PREFIX}/basic-attendance/attendance`,
+        evaluation: (evalua: MarkEvaluation) => `${API_PREFIX}/basic-attendance/evaluation`,
     }
 };

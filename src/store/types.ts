@@ -9,15 +9,40 @@ export interface Feature {
     active: boolean;
 }
 
+export interface FeatureWithIcon extends Feature {
+    iconComponent: any;
+}
+
 export interface Student {
-    student_id: string;
-    student_name: string;
-    student_level: string;
-    birth_date: Date;
-    branch: number;
-    class_session_id: string[];
+    idStudent: string;
+    name: string;
+    studentLevel: string;
+    birthday: Date;
+    idBranch: number;
+    idClassSession: string[];
     phone: string;
-    is_active: boolean;
+    active: boolean;
+}
+
+export interface Attendance {
+    id: string;
+    idClassSession: string;
+    attendanceStatus: string; // "X", "V", "M", "P", "B"
+    evaluationStatus: string; // "T", "TB", "Y"
+}
+
+export interface MarkAttendance {
+    idStudent: string;
+    idClassSession: string;
+    date: Date;
+    attendanceStatus: string; // "X", "V", "M", "P", "B"
+}
+
+export interface MarkEvaluation {
+    idStudent: string;
+    idClassSession: string;
+    date: Date;
+    evaluationStatus: string; // "T", "TB", "Y"
 }
 
 export interface UserInfo {
@@ -58,4 +83,15 @@ export interface Branch {
     weekdays: string[];
     avatar?: string;
     isNew: boolean;
+}
+
+export interface ClassSession {
+    idClassSession: string;
+    location: string;
+    shift: number;
+    classLevel: string;
+    idBranch: number;
+    weekday: number;
+    active: boolean;
+    session: string
 }

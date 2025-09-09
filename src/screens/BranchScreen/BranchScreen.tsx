@@ -121,29 +121,6 @@ export default function BranchScreen() {
         </View>
     );
 
-    const renderSearchBar = () => (
-        <View style={styles.searchContainer}>
-            <View style={styles.searchInputContainer}>
-                <Ionicons name="search" size={20} color="#FF5252" style={styles.searchIcon} />
-                <TextInput
-                    placeholder="Tìm kiếm chi nhánh..."
-                    style={styles.searchInput}
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    placeholderTextColor="#BDBDBD"
-                />
-                {searchText.length > 0 && (
-                    <TouchableOpacity
-                        onPress={() => setSearchText('')}
-                        style={styles.clearButton}
-                    >
-                        <Ionicons name="close-circle" size={20} color="#BDBDBD" />
-                    </TouchableOpacity>
-                )}
-            </View>
-        </View>
-    );
-
     const renderEmptyState = () => (
         <View style={styles.emptyState}>
             <Ionicons name="location-outline" size={64} color="#ccc" />
