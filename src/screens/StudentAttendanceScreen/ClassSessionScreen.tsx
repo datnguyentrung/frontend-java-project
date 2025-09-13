@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { ClassSession } from "@/store/types";
+import { ClassSession } from "@/types/types";
 
 type Props = {
     selectedClassSession: string | null,

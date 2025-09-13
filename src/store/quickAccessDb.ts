@@ -1,5 +1,5 @@
 import { SQLiteDatabase } from 'expo-sqlite';
-import { Feature } from './types';
+import { Feature } from '../types/types';
 
 export async function migrateQuickAccessDb(db: SQLiteDatabase) {
     await db.execAsync(`

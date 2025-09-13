@@ -57,6 +57,7 @@ export default function SignInScreen() {
                     access_token: loginResult.data.access_token,
                     refresh_token: loginResult.data.refresh_token,
                     info: {
+                        idUser: loginResult.data.user.idUser,
                         name: loginResult.data.user.name,
                         email: loginResult.data.user.email,
                         role: loginResult.data.user.role,

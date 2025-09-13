@@ -1,5 +1,5 @@
 const API_PREFIX = "/api/v1";
-import { MarkAttendance, MarkEvaluation } from "../store/types";
+import { MarkAttendance, MarkEvaluation } from "../types/types";
 
 export const endpoints = {
     auth: {
@@ -11,9 +11,10 @@ export const endpoints = {
         list: `${API_PREFIX}/users/`,  // ✅ Thêm trailing slash
         update: `${API_PREFIX}/users/update`,
     },
-    products: {
-        list: `${API_PREFIX}/products`,
-        detail: (id: string | number) => `${API_PREFIX}/products/${id}`,
+    summary: {
+        list: `${API_PREFIX}/summary`,
+        quarterSummaryByIdStudentAndYear: (id: string | number, year: string | number) =>
+            `${API_PREFIX}/summary/students/${id}/goat-points/${year}/quarters`,
     },
     feature: {
         list: `${API_PREFIX}/features`,
@@ -32,12 +33,15 @@ export const endpoints = {
         detail: (id: string | number) => `${API_PREFIX}/students/${id}`,
         branch: (id: string | number) => `${API_PREFIX}/students/branch/${id}`,
         classSession: (id: string | number) => `${API_PREFIX}/students/class-session/${id}`,
+        startDate: (id: string | number) => `${API_PREFIX}/students/start-date/${id}`,
     },
     basicAttendance: {
         list: `${API_PREFIX}/basic-attendance`,
         detail: (id: string | number) => `${API_PREFIX}/basic-attendance/${id}`,
         classSession: (id: string | number) => `${API_PREFIX}/basic-attendance/class-session/${id}`,
-        attendance: (attend: MarkAttendance) => `${API_PREFIX}/basic-attendance/attendance`,
-        evaluation: (evalua: MarkEvaluation) => `${API_PREFIX}/basic-attendance/evaluation`,
+        attendance: (attendance: MarkAttendance) => `${API_PREFIX}/basic-attendance/attendance`,
+        evaluation: (evaluation: MarkEvaluation) => `${API_PREFIX}/basic-attendance/evaluation`,
+        studentByYearAndQuarter: (id: string | number) =>
+            `${API_PREFIX}/basic-attendance/students/${id}`,
     }
 };

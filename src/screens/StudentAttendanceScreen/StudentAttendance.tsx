@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image } from "react-native";
-import { Student, Attendance } from "@/store/types";
+import { Student, Attendance } from "@/types/types";
 import React, { useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';

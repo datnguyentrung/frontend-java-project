@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         overflow: 'hidden',
-        borderBottomRightRadius: 30,
-        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 20,
+        borderBottomLeftRadius: 20,
         backgroundColor: '#fff',
         // backfaceVisibility: 'hidden',
         // position: 'absolute', // Thay đổi từ flex: 1 thành position absolute

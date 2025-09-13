@@ -33,6 +33,9 @@
       ],
       "@providers/*": [
         "src/providers/*"
+      ],
+      "@types/*": [
+        "src/types/*"
       ]
     }
   },

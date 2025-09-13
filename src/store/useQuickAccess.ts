@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Feature } from './types';
+import { Feature } from '../types/types';
 import { useDatabaseConnection } from '../providers';
 import {
     insertQuickAccessFeature,

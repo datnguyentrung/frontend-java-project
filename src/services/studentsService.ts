@@ -68,3 +68,18 @@ export const getStudentByClassSession = async (id: number | string) => {
         throw error;
     }
 };
+
+export const getStudentStartDate = async (id: number | string) => {
+    // console.log('🔧 Debug Info:', {
+    //     baseURL: axiosInstance.defaults.baseURL,
+    //     endpoint: endpoints.students.startDate(id),
+    //     fullURL: `${axiosInstance.defaults.baseURL}${endpoints.students.startDate(id)}`
+    // });
+    try {
+        const response = await axiosInstance.get(endpoints.students.startDate(id));
+        return response.data.data;
+    } catch (error) {
+        console.error("Error fetching student start date:", error);
+        throw error;
+    }
+};

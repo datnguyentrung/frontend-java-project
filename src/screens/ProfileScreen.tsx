@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@providers/AuthProvider';
-import { UserInfo } from '@/store/types';
+import { UserInfo } from '@/types/types';
 /**
  * ProfileScreen - Màn hình hồ sơ cá nhân
  * Hiển thị thông tin về người dùng và chức năng đăng xuất

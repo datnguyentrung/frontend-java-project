@@ -18,7 +18,7 @@ export interface LoginResponse {
         user: {
             email: string;
             name: string;
-            id: number;
+            idUser: string;
             role: string;
         };
     };

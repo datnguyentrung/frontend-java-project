@@ -7,9 +7,27 @@ import BranchScreen from '@/screens/BranchScreen/BranchScreen';
 import StudentAttendanceScreen from '@/screens/StudentAttendanceScreen/StudentAttendanceScreen';
 import NotFoundScreen from '@/screens/NotFoundScreen';
 import HeaderBackground from '@/components/layout/HeaderApp/HeaderBackground';
+import GOATPointsScreen from '@/screens/GOATPointsScreen/GOATPointsScreen';
+import GOATPointsAttendanceScreen from '@/screens/GOATPointsScreen/GOATPointsAttendanceScreen/GOATPointsAttendanceScreen';
+import GOATPointsIconHeader from '@/screens/GOATPointsScreen/GOATPointsAttendanceScreen/GOATPointsIconHeader';
+import EnrollmentScreen from '@/screens/EnrollmentScreen/EnrollmentScreen';
+
+// Định nghĩa các params cho từng screen
+export type RootStackParamList = {
+    Tabs: undefined;
+    BranchScreen: undefined;
+    StudentAttendanceScreen: undefined;
+    GoatPointsScreen: undefined;
+    GOATPointsAttendanceScreen: { title?: string; scoreData?: any };
+    TrainingTimeScreen: undefined;
+    SkillsScreen: undefined;
+    StatisticsScreen: undefined;
+    EnrollmentScreen: undefined;
+    OtherFeaturesScreen: undefined;
+};
 
 // Tạo Stack Navigator
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 
 // Import icon AntDesign
 import AntDesign from '@expo/vector-icons/AntDesign'
@@ -65,10 +83,29 @@ const AppNavigator = () => {
             {/* Placeholder screens cho các features khác */}
             <Stack.Screen
                 name="GoatPointsScreen"
-                component={NotFoundScreen}
+                component={GOATPointsScreen}
                 options={{
                     title: 'GOAT Points',
                     headerBackTitle: 'Quay lại'
+                }}
+            />
+
+            <Stack.Screen
+                name="GOATPointsAttendanceScreen"
+                component={GOATPointsAttendanceScreen}
+                options={({ route }) => ({
+                    title: route.params?.title || 'Điểm GOAT',
+                    headerBackTitle: 'Quay lại',
+                    headerRight: () => <GOATPointsIconHeader />,
+                })}
+            />
+
+            <Stack.Screen
+                name="EnrollmentScreen"
+                component={EnrollmentScreen}
+                options={{
+                    title: 'Ghi danh',
+                    headerBackTitle: 'Quay lại',
                 }}
             />
 

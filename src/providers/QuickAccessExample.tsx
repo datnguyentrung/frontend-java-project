@@ -3,7 +3,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useQuickAccess } from '../store/useQuickAccess';
-import { Feature } from '../store/types';
+import { Feature } from '../types/types';
 
 // Mock feature data
 const mockFeature: Feature = {

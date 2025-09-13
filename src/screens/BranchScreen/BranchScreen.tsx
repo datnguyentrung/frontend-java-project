@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import StudentListScreen from '@/screens/BranchScreen/StudentListScreen/StudentListScreen';
 import SearchBar from '@/components/common/SearchBar';
-import { Branch } from '@/store/types';
+import { Branch } from '@/types/types';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2; // 48 = padding (16*2) + gap (16)

@@ -30,7 +30,7 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
             try {
                 console.log('🔍 Fetching students for branch_id:', branch_id);
                 const data = await getStudentByBranch(branch_id);
-                console.log('📊 Students data received:', data);
+                // console.log('📊 Students data received:', data);
                 setListStudent(data || []);
             } catch (err) {
                 console.error('❌ Error fetching students:', err);

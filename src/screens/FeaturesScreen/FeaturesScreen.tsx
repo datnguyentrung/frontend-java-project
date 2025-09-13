@@ -18,7 +18,7 @@ import {
 import FeaturesGroup from './FeaturesGroup';
 import Divider from '@/components/layout/Divider';
 import FeaturesHeaderScreen from '@/screens/FeaturesScreen/FeaturesHeaderScreen';
-import { Feature } from "@/store/types";
+import { Feature } from "@/types/types";
 import { useQuickAccess } from '@/store/useQuickAccess';
 import { getAllFeatures } from '@/services/featureService';
 import { useAuth } from "@/providers/AuthProvider";

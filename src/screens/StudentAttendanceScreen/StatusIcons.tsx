@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/providers/AuthProvider';
 import { AntDesign, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { Attendance } from '@/store/types';
+import { Attendance } from '@/types/types';
 import { markAttendanceAPI, markEvaluationAPI } from '@/services/basicAttendanceService';
 import { useMutation } from "@tanstack/react-query";
 

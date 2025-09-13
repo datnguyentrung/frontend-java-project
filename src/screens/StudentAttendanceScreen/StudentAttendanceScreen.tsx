@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ClassSessionScreen from "./ClassSessionScreen";
 import StudentAttendance from "./StudentAttendance";
 import { getAllClassSessions } from "@/services/classSessionsService";
-import { ClassSession } from "@/store/types";
+import { ClassSession } from "@/types/types";
 import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from '@expo/vector-icons';
 import LoadingScreen from '@screens/LoadingScreen';

@@ -3,6 +3,7 @@
 // Mapping từ feature title đến screen name
 export const featureScreenMap: Record<string, string> = {
     "GOAT points": "GoatPointsScreen",
+    "Điểm điểm danh": "GOATPointsAttendanceScreen",
     "Thời gian rèn luyện": "TrainingTimeScreen",
     "Kỹ năng": "SkillsScreen",
     "Thống kê": "StatisticsScreen",
@@ -23,13 +24,21 @@ export const getFeatureScreenName = (title: string): string | null => {
 };
 
 // Hàm navigation helper
-export const navigateToFeature = (title: string, navigation: any): boolean => {
+export const navigateToFeature = (title: string, navigation: any, scoreData?: any): boolean => {
     const screenName = getFeatureScreenName(title);
 
     if (screenName) {
         try {
             console.log(`🚀 Navigating to: ${title} → ${screenName}`);
-            navigation.navigate(screenName);
+
+            // Nếu có scoreData thì truyền kèm params
+            if (scoreData) {
+                // console.log('📊 Passing score data:', scoreData);
+                navigation.navigate(screenName, { scoreData, title: scoreData?.type });
+            } else {
+                navigation.navigate(screenName, { title });
+            }
+
             return true;
         } catch (error) {
             console.error(`❌ Navigation error for ${title}:`, error);

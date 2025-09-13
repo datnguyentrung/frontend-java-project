@@ -1,5 +1,5 @@
 import { useAuth } from '@providers/AuthProvider';
-import { UserInfo } from '@/store/types';
+import { UserInfo } from '@/types/types';
 
 export const getUserInfo = async (): Promise<UserInfo | null> => {
     const { user } = useAuth();

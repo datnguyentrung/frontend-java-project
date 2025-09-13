@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance";
 import { endpoints } from "@/api/endpoints";
-import { MarkAttendance, MarkEvaluation } from "@/store/types";
+import { MarkAttendance, MarkEvaluation } from "@/types/types";
 
 export const getBasicAttendanceByClassSession = async (classSessionId: string, date: Date | null) => {
     // Debug logging
@@ -51,6 +51,24 @@ export const markEvaluationAPI = async (evaluationData: MarkEvaluation) => {
         return response.data;
     } catch (error) {
         console.error("Error marking evaluation:", error);
+        throw error;
+    }
+};
+
+export const getStudentsByYearAndQuarter = async (studentId: string, year: number, quarter: number) => {
+    // Debug logging
+    // console.log('🔧 Debug Info:', {
+    //     baseURL: axiosInstance.defaults.baseURL,
+    //     endpoint: endpoints.basicAttendance.studentByYearAndQuarter(studentId),
+    //     fullURL: `${axiosInstance.defaults.baseURL}${endpoints.basicAttendance.studentByYearAndQuarter(studentId)}`
+    // });
+    try {
+        const response = await axiosInstance.get(endpoints.basicAttendance.studentByYearAndQuarter(studentId), {
+            params: { year, quarter }
+        });
+        return response.data.data;
+    } catch (error) {
+        console.error("Error fetching students by year and quarter:", error);
         throw error;
     }
 };
