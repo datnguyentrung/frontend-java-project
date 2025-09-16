@@ -43,5 +43,10 @@ export const endpoints = {
         evaluation: (evaluation: MarkEvaluation) => `${API_PREFIX}/basic-attendance/evaluation`,
         studentByYearAndQuarter: (id: string | number) =>
             `${API_PREFIX}/basic-attendance/students/${id}`,
+    },
+    coachAttendance: {
+        list: `${API_PREFIX}/coach-attendance`,
+        detail: (id: string | number) => `${API_PREFIX}/coach-attendance/${id}`,
+        byYearAndMonth: (id: string | number) => `${API_PREFIX}/coach-attendance/${id}/year-month`
     }
 };

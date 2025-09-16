@@ -11,6 +11,7 @@ import GOATPointsScreen from '@/screens/GOATPointsScreen/GOATPointsScreen';
 import GOATPointsAttendanceScreen from '@/screens/GOATPointsScreen/GOATPointsAttendanceScreen/GOATPointsAttendanceScreen';
 import GOATPointsIconHeader from '@/screens/GOATPointsScreen/GOATPointsAttendanceScreen/GOATPointsIconHeader';
 import EnrollmentScreen from '@/screens/EnrollmentScreen/EnrollmentScreen';
+import CoachAttendanceScreen from '@/screens/CoachAttendanceScreen/CoachAttendanceScreen';
 
 // Định nghĩa các params cho từng screen
 export type RootStackParamList = {
@@ -24,6 +25,7 @@ export type RootStackParamList = {
     StatisticsScreen: undefined;
     EnrollmentScreen: undefined;
     OtherFeaturesScreen: undefined;
+    CoachAttendanceScreen: undefined;
 };
 
 // Tạo Stack Navigator
@@ -110,10 +112,10 @@ const AppNavigator = () => {
             />
 
             <Stack.Screen
-                name="TrainingTimeScreen"
-                component={NotFoundScreen}
+                name="CoachAttendanceScreen"
+                component={CoachAttendanceScreen}
                 options={{
-                    title: 'Thời gian rèn luyện',
+                    title: 'Chấm công',
                     headerBackTitle: 'Quay lại'
                 }}
             />

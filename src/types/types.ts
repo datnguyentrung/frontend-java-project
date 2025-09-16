@@ -170,3 +170,30 @@ export interface ScoreDataType {
     year: number,
     listAttendance: BasicAttendance[]
 }
+
+export interface Branch {
+    idBranch: number;
+    title: string;
+    address: string;
+    weekdays: string[];
+    avatar?: string;
+    isNew: boolean;
+}
+
+export interface ClassSessionAttendance {
+    idClassSession: string;
+    location: string;
+    shift: number;
+    classLevel: string;
+    branch: Branch;
+    weekday: number;
+    active: boolean;
+    session: string;
+}
+
+export interface CoachAttendance {
+    coachName: string;
+    datetime: Date;
+    classSession: ClassSessionAttendance;
+    imageFileName: string;
+}

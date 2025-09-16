@@ -41,7 +41,7 @@ export const useQuickAccess = () => {
     // ✅ Mutation để thêm feature vào quick access
     const addToQuickAccessMutation = useMutation({
         mutationFn: async (feature: Feature) => {
-            const isAlreadyAdded = await isFeatureInQuickAccess(db, feature.feature_id);
+            const isAlreadyAdded = await isFeatureInQuickAccess(db, feature.idFeature);
             if (isAlreadyAdded) {
                 console.log('Feature already in quick access');
                 throw new Error('Feature already in quick access');
