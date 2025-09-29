@@ -3,7 +3,7 @@ import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import CoachAttendanceHeaderScreen from './CoachAttendanceHeaderScreen';
 import CoachAttendanceItemScreen from './CoachAttendanceItemScreen';
 import { CoachAttendance } from '@/types/types';
-import { getCoachAttendanceByYearAndMonth } from '@/services/coachAttendanceService';
+import { getCoachAttendanceByYearAndMonth } from '@/services/attendance/coachAttendanceService';
 import { useAuth } from '@/providers/AuthProvider';
 import { gray } from '@/styles/colorTypes';
 

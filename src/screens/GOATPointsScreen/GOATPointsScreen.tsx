@@ -6,7 +6,6 @@ import { GOATPointsSummaryByYear, ConductScore, AwarenessScore } from "@/types/t
 import GOATPointsTimeScreen from './GOATPointsTimeScreen';
 import LoadingScreen from '../LoadingScreen';
 import GOATPointsScoresReport from './GOATPointsScoresReport';
-// import GOATPointsConductScore from './GOATPointsConductAwareness';
 import GOATPointsOverview from './GOATPointsOverview';
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { ComponentProps } from 'react'

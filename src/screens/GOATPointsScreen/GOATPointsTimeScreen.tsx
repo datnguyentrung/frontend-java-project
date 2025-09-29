@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Dimensions } from 'react-native'
-import { getStudentStartDate } from "@/services/studentsService";
+import { View, Text, StyleSheet } from 'react-native'
+import { getStudentStartDate } from "@/services/training/studentsService";
 import { UserInfo } from '@/types/types';
 import DropDownPicker from "react-native-dropdown-picker";
-
-const { width } = Dimensions.get("window");
 
 type Props = {
     userInfo: UserInfo | null;

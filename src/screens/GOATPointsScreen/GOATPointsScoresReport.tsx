@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { navigateToFeature } from '@/navigation/FeatureNavigator'
 import { ConductScore, AwarenessScore, BasicAttendance, ScoreDataType } from '@/types/types';
 import { useAuth } from '@providers/AuthProvider';
-import { getStudentsByYearAndQuarter } from '@/services/basicAttendanceService';
+import { getStudentsByYearAndQuarter } from '@/services/attendance/studentAttendanceService';
 import AntDesign from '@expo/vector-icons/AntDesign'
 
 type AntDesignIconName = ComponentProps<typeof AntDesign>['name'];

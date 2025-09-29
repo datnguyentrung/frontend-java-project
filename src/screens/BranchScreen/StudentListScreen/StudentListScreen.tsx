@@ -1,14 +1,9 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image } from 'react-native';
 import { useEffect, useState } from 'react';
-import { getStudentByBranch, getAllStudents } from '@/services/studentsService';
+import { getStudentByBranch, getAllStudents } from '@/services/training/studentsService';
 import taekwondo from '@assets/taekwondo.jpg';
 import SearchBar from '@/components/common/SearchBar';
-
-interface Student {
-    name: string;
-    studentLevel: string;
-    branch: number;
-}
+import { Student } from '@/types/StudentTypes';
 
 export default function StudentListScreen({ branch_id }: { branch_id: number | null }) {
     const [listStudent, setListStudent] = useState<Student[]>([]);
@@ -44,52 +39,55 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
         fetchStudents();
     }, [branch_id]);
 
-    const renderStudentItem = ({ item, index }: { item: Student; index: number }) => (
-        <View style={[styles.studentItem, {
-            backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FFEBEE',
-        }]}>
-            <View style={styles.studentIndex}>
-                <Text style={styles.indexText}>{index + 1}</Text>
-            </View>
-
-            <View style={styles.studentInfo}>
-                <View style={styles.nameSection}>
-                    <Text style={styles.studentName}>{item.name}</Text>
-                    <View style={styles.nameUnderline} />
+    const renderStudentItem = ({ item, index }: { item: Student; index: number }) => {
+        const { academicInfo, personalInfo } = item;
+        return (
+            <View style={[styles.studentItem, {
+                backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FFEBEE',
+            }]}>
+                <View style={styles.studentIndex}>
+                    <Text style={styles.indexText}>{index + 1}</Text>
                 </View>
 
-                <View style={styles.detailsRow}>
-                    <View style={styles.levelContainer}>
-                        <View style={styles.levelIcon}>
-                            <Text style={styles.levelIconText}>🥋</Text>
-                        </View>
-                        <View style={styles.levelTextContainer}>
-                            <Text style={styles.levelLabel}>Cấp đai</Text>
-                            <Text style={styles.studentLevel}>{item.studentLevel}</Text>
-                        </View>
+                <View style={styles.studentInfo}>
+                    <View style={styles.nameSection}>
+                        <Text style={styles.studentName}>{personalInfo.name}</Text>
+                        <View style={styles.nameUnderline} />
                     </View>
 
-                    <View style={styles.branchContainer}>
-                        <View style={styles.branchIcon}>
-                            <Text style={styles.branchIconText}>🏢</Text>
+                    <View style={styles.detailsRow}>
+                        <View style={styles.levelContainer}>
+                            <View style={styles.levelIcon}>
+                                <Text style={styles.levelIconText}>🥋</Text>
+                            </View>
+                            <View style={styles.levelTextContainer}>
+                                <Text style={styles.levelLabel}>Cấp đai</Text>
+                                <Text style={styles.studentLevel}>{academicInfo.beltLevel}</Text>
+                            </View>
                         </View>
-                        <View style={styles.branchTextContainer}>
-                            {/* <Text style={styles.branchLabel}>CS</Text> */}
-                            <View style={styles.branchBadge}>
-                                <Text style={styles.branchText}>{item.branch}</Text>
+
+                        <View style={styles.branchContainer}>
+                            <View style={styles.branchIcon}>
+                                <Text style={styles.branchIconText}>🏢</Text>
+                            </View>
+                            <View style={styles.branchTextContainer}>
+                                {/* <Text style={styles.branchLabel}>CS</Text> */}
+                                <View style={styles.branchBadge}>
+                                    <Text style={styles.branchText}>{academicInfo.idBranch}</Text>
+                                </View>
                             </View>
                         </View>
                     </View>
                 </View>
-            </View>
 
-            <View style={styles.imageContainer}>
-                <Image source={taekwondo} style={styles.studentImage} />
-                {/* <View style={styles.imageOverlay} /> */}
-                <View style={styles.imageBorder} />
+                <View style={styles.imageContainer}>
+                    <Image source={taekwondo} style={styles.studentImage} />
+                    {/* <View style={styles.imageOverlay} /> */}
+                    <View style={styles.imageBorder} />
+                </View>
             </View>
-        </View>
-    );
+        )
+    };
 
     if (loading) {
         return (
@@ -121,9 +119,16 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
             </View>
 
             <FlatList
-                data={listStudent.sort((a, b) => a.name.localeCompare(b.name))}
+                data={listStudent
+                    .sort((a, b) => a.personalInfo.name.localeCompare(b.personalInfo.name))
+                    .filter(student =>
+                        student.personalInfo.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                        student.academicInfo.beltLevel.toLowerCase().includes(searchText.toLowerCase()) ||
+                        student.personalInfo.idAccount.toString().includes(searchText)
+                    )
+                }
                 renderItem={renderStudentItem}
-                keyExtractor={(item, index) => `${item.name}-${index}`}
+                keyExtractor={(item) => `${item.personalInfo.idAccount}`}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>

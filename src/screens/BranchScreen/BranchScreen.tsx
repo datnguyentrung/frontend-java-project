@@ -1,11 +1,11 @@
 import {
-    View, Text,
-    StyleSheet, TextInput, FlatList,
-    TouchableOpacity, SafeAreaView, Dimensions,
+    View, Text, StyleSheet, FlatList,
+    TouchableOpacity, Dimensions,
 } from 'react-native';
-import { getAllBranches } from '@/services/branchesService';
+import { getAllBranches } from '@/services/training/branchesService';
 import { useEffect, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import StudentListScreen from '@/screens/BranchScreen/StudentListScreen/StudentListScreen';
 import SearchBar from '@/components/common/SearchBar';
@@ -133,7 +133,7 @@ export default function BranchScreen() {
 
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['left', 'right']}>
             <FlatList
                 data={filteredBranches}
                 renderItem={({ item, index }) => renderBranchCard({ item, index })}
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     header: {
+        marginTop: 0,
         paddingHorizontal: 16,
         paddingTop: 20,
         paddingBottom: 16,

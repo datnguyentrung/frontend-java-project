@@ -1,5 +1,5 @@
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 export default function SearchBar({ searchText, setSearchText, content }: { searchText: string, setSearchText: (text: string) => void, content: string }) {
     return (

@@ -13,40 +13,25 @@ import {
     GraduationCap, BellElectric, AlarmClockCheck,
     UserRoundPlus, Users, Settings, Calendar, Zap,
     Trophy, Clock, Target, BarChart3, MoreHorizontal,
-    BookOpen, UserCheck, CalendarDays, Building
+    BookOpen, UserCheck, CalendarDays, Building, Sparkles
 } from 'lucide-react-native';
 import FeaturesGroup from './FeaturesGroup';
 import Divider from '@/components/layout/Divider';
 import FeaturesHeaderScreen from '@/screens/FeaturesScreen/FeaturesHeaderScreen';
-import { Feature } from "@/types/types";
+import { Feature } from "@/types/FeatureTypes";
 import { useQuickAccess } from '@/store/useQuickAccess';
 import { getAllFeatures } from '@/services/featureService';
 import { useAuth } from "@/providers/AuthProvider";
 
-// Định nghĩa type cho feature có iconComponent
-interface FeatureWithIcon extends Feature {
-    iconComponent: any;
-}
-
 // Icon mapping để chuyển đổi từ string sang component
 const iconMap: { [key: string]: any } = {
-    Zap: Zap,
     Trophy: Trophy,
-    Clock: Clock,
-    Target: Target,
-    BarChart3: BarChart3,
-    MoreHorizontal: MoreHorizontal,
-    GraduationCap: GraduationCap,
-    CalendarDays: CalendarDays,
-    Calendar: Calendar,
     UserCheck: UserCheck,
     AlarmClockCheck: AlarmClockCheck,
     BellElectric: BellElectric,
     UserRoundPlus: UserRoundPlus,
-    Users: Users,
-    Settings: Settings,
-    BookOpen: BookOpen,
     Building: Building,
+    Sparkles: Sparkles,
 };
 
 /**
@@ -102,28 +87,33 @@ export default function FeaturesScreen() {
     // Lọc features theo role của user hiện tại
     const filteredFeatures = currentUserRole
         ? (featuresData.filter(feature =>
-            feature.roles.includes(currentUserRole) && feature.active))
+            feature.roles.includes(currentUserRole) && feature.enabled))
         : [];
 
     // Nhóm features theo group
-    const groupedFeatures = filteredFeatures.reduce((groups: { [key: string]: FeatureWithIcon[] }, feature) => {
+    const groupedFeatures = filteredFeatures.reduce((groups: { [key: string]: Feature[] }, feature) => {
         const featureGroup = feature.featureGroup;
         if (!groups[featureGroup]) {
             groups[featureGroup] = [];
         }
         groups[featureGroup].push({
             ...feature,
-            iconComponent: iconMap[feature.icon]
+            iconComponent: iconMap[feature.iconComponent] || null
         });
         return groups;
     }, {});
 
+    // console.log(groupedFeatures);
+
     // Tạo mảng featureGroups để render
     const featureGroups = Object.entries(groupedFeatures).map(([groupFeature, features]) => ({
-        id: groupFeature,
+        // id: groupFeature,
+        // title: groupFeature,
         title: groupFeature,
         features: features
     }));
+
+    // console.log('Feature Groups:', featureGroups);
 
     const {
         quickAccessFeatures
@@ -179,7 +169,7 @@ export default function FeaturesScreen() {
                     features={
                         quickAccessFeatures.map(feature => ({
                             ...feature,
-                            iconComponent: iconMap[feature.icon]
+                            iconComponent: iconMap[feature.iconComponent] || null
                         }))
                     }
                     change={change}

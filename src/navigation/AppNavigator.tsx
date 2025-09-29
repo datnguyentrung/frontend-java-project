@@ -12,6 +12,8 @@ import GOATPointsAttendanceScreen from '@/screens/GOATPointsScreen/GOATPointsAtt
 import GOATPointsIconHeader from '@/screens/GOATPointsScreen/GOATPointsAttendanceScreen/GOATPointsIconHeader';
 import EnrollmentScreen from '@/screens/EnrollmentScreen/EnrollmentScreen';
 import CoachAttendanceScreen from '@/screens/CoachAttendanceScreen/CoachAttendanceScreen';
+import LeaveRequestScreen from '@/screens/LeaveRequestScreen/LeaveRequestScreen';
+import TrialAttendanceScreen from '@/screens/TrialAttendanceScreen/TrialAttendanceScreen';
 
 // Định nghĩa các params cho từng screen
 export type RootStackParamList = {
@@ -26,13 +28,12 @@ export type RootStackParamList = {
     EnrollmentScreen: undefined;
     OtherFeaturesScreen: undefined;
     CoachAttendanceScreen: undefined;
+    LeaveRequestScreen: undefined;
+    TrialAttendanceScreen: undefined;
 };
 
 // Tạo Stack Navigator
 const Stack = createStackNavigator<RootStackParamList>();
-
-// Import icon AntDesign
-import AntDesign from '@expo/vector-icons/AntDesign'
 
 /**
  * AppNavigator - Navigator chính của app
@@ -143,6 +144,24 @@ const AppNavigator = () => {
                 component={NotFoundScreen}
                 options={{
                     title: 'Tính năng khác',
+                    headerBackTitle: 'Quay lại'
+                }}
+            />
+
+            <Stack.Screen
+                name="LeaveRequestScreen"
+                component={LeaveRequestScreen}
+                options={{
+                    title: 'Nghỉ phép',
+                    headerBackTitle: 'Quay lại'
+                }}
+            />
+
+            <Stack.Screen
+                name="TrialAttendanceScreen"
+                component={TrialAttendanceScreen}
+                options={{
+                    title: 'Điểm danh tập thử',
                     headerBackTitle: 'Quay lại'
                 }}
             />

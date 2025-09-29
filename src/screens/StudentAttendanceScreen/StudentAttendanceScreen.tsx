@@ -1,15 +1,17 @@
 import {
-    View, StyleSheet, ScrollView,
-    RefreshControl, Animated, Easing
+    View, StyleSheet, ScrollView, TouchableOpacity,
+    RefreshControl, Animated, Easing,
 } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import ClassSessionScreen from "./ClassSessionScreen";
 import StudentAttendance from "./StudentAttendance";
-import { getAllClassSessions } from "@/services/classSessionsService";
-import { ClassSession } from "@/types/types";
+import { getAllClassSessions } from "@/services/training/classSessionsService";
+import { ClassSession } from "@/types/ClassSessionTypes";
 import { useNavigation } from "@react-navigation/native";
-import { AntDesign } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign'
 import LoadingScreen from '@screens/LoadingScreen';
+import TrialAttendanceScreen from '../TrialAttendanceScreen/TrialAttendanceScreen';
+import Modal from 'react-native-modal';
 
 export default function StudentAttendanceScreen() {
     const [selectedClassSession, setSelectedClassSession] = React.useState<string | null>(null);
@@ -18,6 +20,7 @@ export default function StudentAttendanceScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isChangingStatus, setIsChangingStatus] = useState(false);
+    const [visible, setVisible] = React.useState(false);
     const navigation = useNavigation();
 
     // Animation value for rotating sync icon
@@ -27,6 +30,7 @@ export default function StudentAttendanceScreen() {
     const handleStatusChange = () => {
         if (isChangingStatus) return; // Prevent multiple clicks
 
+        console.log(`🔄 Switching status from ${status} to ${status === "attendance" ? "evaluation" : "attendance"}`);
         setIsChangingStatus(true);
 
         // Start continuous rotation animation
@@ -69,27 +73,37 @@ export default function StudentAttendanceScreen() {
     useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Animated.View
-                    style={[
-                        {
-                            marginRight: 16,
-                        },
-                        isChangingStatus && {
-                            transform: [{ rotate }],
-                        }
-                    ]}
-                >
-                    <AntDesign
-                        name="sync"
-                        size={24}
-                        color={isChangingStatus ? "#ffeb3b" : "white"}
-                        onPress={isChangingStatus ? undefined : handleStatusChange}
-                        style={{
-                            padding: 4, // Add some padding for better touch area
-                            opacity: isChangingStatus ? 0.9 : 1,
-                        }}
-                    />
-                </Animated.View>
+                <View style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                    <TouchableOpacity>
+                        <AntDesign
+                            name='audit'
+                            size={24}
+                            color='#fff'
+                            onPress={() => setVisible(true)}
+                            style={{ padding: 8 }} // Add some padding for better touch area
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Animated.View
+                            style={[
+                                isChangingStatus && {
+                                    transform: [{ rotate }],
+                                }
+                            ]}
+                        >
+                            <AntDesign
+                                name="sync"
+                                size={24}
+                                color={isChangingStatus ? "#ffeb3b" : "white"}
+                                onPress={isChangingStatus ? undefined : handleStatusChange}
+                                style={{
+                                    padding: 10, // Add some padding for better touch area
+                                    opacity: isChangingStatus ? 0.9 : 1,
+                                }}
+                            />
+                        </Animated.View>
+                    </TouchableOpacity>
+                </View>
             )
         });
     }, [navigation, status, rotate, isChangingStatus]);
@@ -117,11 +131,16 @@ export default function StudentAttendanceScreen() {
         try {
             setLoading(true);
             console.log('🔄 Refreshing class sessions...');
-            const sessions = await getAllClassSessions({ isActive: true });
+
+            // ✅ Refresh cả class sessions và trial attendance
+            const [sessions] = await Promise.all([
+                getAllClassSessions({ isActive: true }),
+            ]);
+
             setListClassSessions(sessions);
-            // console.log('✅ Class sessions refreshed successfully');
+
         } catch (error) {
-            console.error('❌ Error refreshing class sessions:', error);
+            console.error('❌ Error refreshing data:', error);
         } finally {
             setRefreshing(false);
             setLoading(false);
@@ -162,12 +181,35 @@ export default function StudentAttendanceScreen() {
                     : <StudentAttendance
                         selectedClassSession={selectedClassSession}
                         status={status}
-                        refreshing={refreshing}
                         isChangingStatus={isChangingStatus}
                         onStatusChangeComplete={stopLoadingAnimation}
                     />
                 }
             </ScrollView>
+
+            {/* Trial Attendance Modal */}
+            <Modal
+                isVisible={visible}               // kiểm soát hiển thị modal
+                animationIn="fadeIn"               // hiệu ứng hiện modal
+                animationOut="fadeOut"           // hiệu ứng ẩn modal
+                animationInTiming={100}               // thời gian animation hiện
+                animationOutTiming={100}              // thời gian animation ẩn
+                backdropTransitionInTiming={100}      // thời gian fade của nền khi hiện
+                backdropTransitionOutTiming={100}     // thời gian fade của nền khi ẩn
+                backdropOpacity={0.5}                 // độ mờ của nền
+                onBackdropPress={() => setVisible(false)} // tắt modal khi nhấn nền
+                onSwipeComplete={() => setVisible(false)} // tắt modal khi swipe xuống
+                swipeDirection="down"                 // hướng swipe để đóng
+                useNativeDriver                        // dùng native driver cho animation mượt
+                useNativeDriverForBackdrop
+                statusBarTranslucent
+                coverScreen
+                style={styles.modalStyle}             // style cho modal
+            >
+                <TrialAttendanceScreen
+                    setVisible={setVisible}
+                />
+            </Modal>
         </View>
     );
 };
@@ -197,5 +239,12 @@ const styles = StyleSheet.create({
     },
     row: {
         gap: 5
-    }
+    },
+    modalStyle: {
+        justifyContent: 'center',  // modal xuất hiện từ dưới lên
+        alignItems: 'center',
+        overflow: 'hidden',
+        margin: 0,                   // modal full width
+        padding: 20,
+    },
 })

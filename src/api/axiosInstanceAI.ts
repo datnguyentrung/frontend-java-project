@@ -2,11 +2,11 @@ import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Debug environment
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.4:8000';
+const API_URL = process.env.EXPO_PUBLIC_API_URL_FACE_RECOGNITION || 'http://192.168.100.4:8000';
 console.log('🔧 API_URL:', API_URL);
 
 // Tạo axios instance với config cơ bản
-const axiosInstance = axios.create({
+const axiosInstanceAI = axios.create({
     baseURL: API_URL,
     timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '10000'),
     headers: {
@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 });
 
 // Request interceptor - thêm token tự động
-axiosInstance.interceptors.request.use(
+axiosInstanceAI.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
         // Thêm accessToken tự động nếu có
         const token = await AsyncStorage.getItem('access_token');
@@ -34,7 +34,7 @@ axiosInstance.interceptors.request.use(
 );
 
 // Response interceptor - xử lý response và lỗi
-axiosInstance.interceptors.response.use(
+axiosInstanceAI.interceptors.response.use(
     (response: AxiosResponse) => {
         console.log(`✅ API Response: ${response.status} ${response.config.url}`);
         return response;
@@ -43,9 +43,9 @@ axiosInstance.interceptors.response.use(
         const { response, config } = error;
 
         console.error(`❌ API Error: ${response?.status} ${config?.url}`, {
-            status: response?.data.status,
-            data: response?.data.data,
-            message: response?.data.message,
+            status: response?.status,
+            data: response?.data,
+            message: error.message,
         });
 
         // Xử lý các lỗi phổ biến
@@ -73,4 +73,4 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-export default axiosInstance;
+export default axiosInstanceAI;

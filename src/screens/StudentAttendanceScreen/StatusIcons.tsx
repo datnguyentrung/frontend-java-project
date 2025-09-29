@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/providers/AuthProvider';
 import { AntDesign, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { Attendance } from '@/types/types';
-import { markAttendanceAPI, markEvaluationAPI } from '@/services/basicAttendanceService';
+import { Attendance, MarkAttendance, MarkEvaluation } from '@/types/AttendanceTypes';
+import { markAttendanceAPI, markEvaluationAPI } from '@/services/attendance/studentAttendanceService';
 import { useMutation } from "@tanstack/react-query";
+import { parseAxiosError } from '@/utils/errorUtils';
 
 const attendanceData = [
     {
@@ -59,7 +60,7 @@ const evaluationData = [
     {
         key: 'T',
         label: 'Tốt',
-        iconComponent: <AntDesign name="like2" size={20} color="white" />,
+        iconComponent: <AntDesign name="like" size={20} color="white" />,
         activeColors: ['#4CAF50', '#66BB6A'] as const,
         inactiveColors: ['#E8F5E8', '#F1F8E9'] as const,
         textColor: '#2E7D32'
@@ -77,7 +78,7 @@ const evaluationData = [
     {
         key: 'Y',
         label: 'Yếu',
-        iconComponent: <AntDesign name="dislike2" size={20} color="white" />,
+        iconComponent: <AntDesign name="dislike" size={20} color="white" />,
         activeColors: ['#F44336', '#EF5350'] as const,
         inactiveColors: ['#FFEBEE', '#FFF5F5'] as const,
         textColor: '#C62828',
@@ -87,19 +88,12 @@ const evaluationData = [
 
 type Props = {
     status: string;
-    studentId: string;
     attendanceRecord?: Attendance;
     isChangingStatus?: boolean;
-    // setLoadingRecord: React.Dispatch<React.SetStateAction<boolean>>;
+    isUpdatable?: boolean;
 };
 
-type newRecord = {
-    newStatus: string;
-    idClassSession: string;
-    idStudent: string;
-}
-
-export default function StatusIcons({ status, studentId, attendanceRecord, isChangingStatus }: Props) {
+export default function StatusIcons({ status, attendanceRecord, isChangingStatus, isUpdatable }: Props) {
     const { userInfo } = useAuth();
     const role = userInfo?.role || '';
 
@@ -113,79 +107,81 @@ export default function StatusIcons({ status, studentId, attendanceRecord, isCha
         setLocalEvaluationStatus(null);
     }, [attendanceRecord]);
 
-    const handleMarkAttendance = async ({ newStatus, idClassSession, idStudent }: newRecord) => {
-        if (!attendanceRecord) return;
-        const { evaluationStatus, ...rest } = attendanceRecord;
-        try {
-            const updatedRecord = {
-                ...rest,
-                attendanceStatus: newStatus,
-                date: new Date(new Date().toLocaleDateString("sv-SE")),
-                idStudent: idStudent,
-                idClassSession: idClassSession
-            };
-            await markAttendanceAPI(updatedRecord);
-            // console.log("Attendance marked successfully");
-            // Trigger refresh by setting refreshing to true
-            // setLoadingRecord(true);
-        } catch (error) {
-            console.error("Error marking attendance 1:", error);
+    const handleMarkAttendance = async ({ newStatus }: { newStatus: string }) => {
+        if (!attendanceRecord) {
+            throw new Error("No attendance record found");
         }
+
+        console.log(`🔄 Marking attendance: ${attendanceRecord.idAttendance} -> ${newStatus}`);
+
+        const updatedRecord: MarkAttendance = {
+            idAttendance: attendanceRecord.idAttendance!,
+            attendanceStatus: newStatus
+        };
+
+        const result = await markAttendanceAPI(updatedRecord);
+        console.log(`✅ Attendance API response:`, result);
+        return result;
     }
 
-    const handleMarkEvaluation = async ({ newStatus, idClassSession, idStudent }: newRecord) => {
-        if (!attendanceRecord) return;
-        const { attendanceStatus, ...rest } = attendanceRecord;
-        try {
-            const updatedRecord = {
-                ...rest,
-                evaluationStatus: newStatus,
-                date: new Date(new Date().toLocaleDateString("sv-SE")),
-                idStudent: idStudent,
-                idClassSession: idClassSession
-            };
-            await markEvaluationAPI(updatedRecord);
-            console.log("Evaluation marked successfully");
-            // Trigger refresh by setting refreshing to true
-            // setLoadingRecord(true);
-        } catch (error) {
-            console.error("Error marking evaluation:", error);
+    const handleMarkEvaluation = async ({ newStatus }: { newStatus: string }) => {
+        if (!attendanceRecord) {
+            throw new Error("No attendance record found");
         }
+
+        console.log(`🔄 Marking evaluation: ${attendanceRecord.idAttendance} -> ${newStatus}`);
+
+        const updatedRecord: MarkEvaluation = {
+            idAttendance: attendanceRecord.idAttendance!,
+            evaluationStatus: newStatus,
+            note: attendanceRecord.attendanceInfo.notes
+        };
+
+        const result = await markEvaluationAPI(updatedRecord);
+        console.log(`✅ Evaluation API response:`, result);
+        return result;
     }
 
     const mutationMarkAttendance = useMutation({
-        mutationFn: (updateRecord: newRecord) => handleMarkAttendance(updateRecord),
-        onMutate: async (variables) => {
-            console.log("Attendance marking...");
+        mutationFn: (newStatus: string) => handleMarkAttendance({ newStatus }),
+        onMutate: async (newStatus) => {
+            console.log("📝 Attendance marking...");
             // Optimistic update - update UI immediately
-            setLocalAttendanceStatus(variables.newStatus);
+            setLocalAttendanceStatus(newStatus);
         },
-        onSuccess: () => {
-            console.log("Attendance marked successfully");
+        onSuccess: (data, newStatus) => {
+            console.log(`✅ Attendance marked successfully: ${newStatus}`);
             // Trigger refresh to update attendanceRecord from server
             // setLoadingRecord(true);
         },
-        onError: (error) => {
-            console.error("Error marking attendance:", error);
+        onError: (error, newStatus) => {
+            console.error(`❌ Error marking attendance (${newStatus}):`, error);
             // Revert optimistic update on error
             setLocalAttendanceStatus(null);
         }
     });
 
     const mutationMarkEvaluation = useMutation({
-        mutationFn: (updateRecord: newRecord) => handleMarkEvaluation(updateRecord),
-        onMutate: async (variables) => {
-            console.log("Evaluation marking...");
+        mutationFn: (newStatus: string) => handleMarkEvaluation({ newStatus }),
+        onMutate: async (newStatus) => {
+            console.log("📊 Evaluation marking...");
             // Optimistic update - update UI immediately
-            setLocalEvaluationStatus(variables.newStatus);
+            setLocalEvaluationStatus(newStatus);
         },
-        onSuccess: () => {
-            console.log("Evaluation marked successfully");
+        onSuccess: (data, newStatus) => {
+            console.log(`✅ Evaluation marked successfully: ${newStatus}`);
             // Trigger refresh to update attendanceRecord from server
             // setLoadingRecord(true);
         },
-        onError: (error) => {
-            console.error("Error marking evaluation:", error);
+        onError: (error, newStatus) => {
+            const { status } = parseAxiosError(error);
+            if (status === 400) {
+                Alert.alert('Lỗi',
+                    "Không thể cập nhật đánh giá. Vui lòng kiểm tra lại."
+                );
+                // Optionally show a user-friendly message here
+            }
+            console.error(`❌ Error marking evaluation (${newStatus}):`, error);
             // Revert optimistic update on error
             setLocalEvaluationStatus(null);
         }
@@ -196,15 +192,18 @@ export default function StatusIcons({ status, studentId, attendanceRecord, isCha
             <View style={styles.iconsContainer}>
                 {evaluationData.map((item) => {
                     // Use local state for immediate UI update, fallback to attendanceRecord
-                    const currentStatus = localEvaluationStatus || attendanceRecord?.evaluationStatus;
+                    const currentStatus = localEvaluationStatus || attendanceRecord?.attendanceInfo.evaluationStatus;
                     const isActive = item.key === currentStatus;
                     return (
-                        <Pressable key={item.key} style={styles.iconButton}
-                            onPress={() => mutationMarkEvaluation.mutate({
-                                newStatus: item.key,
-                                idClassSession: attendanceRecord?.idClassSession || '',
-                                idStudent: studentId
-                            })}
+                        <Pressable
+                            key={item.key}
+                            style={styles.iconButton}
+                            onPress={() => {
+                                if (!mutationMarkEvaluation.isPending && !isChangingStatus) {
+                                    mutationMarkEvaluation.mutate(item.key);
+                                }
+                            }}
+                            disabled={mutationMarkEvaluation.isPending || isChangingStatus || isUpdatable}
                         >
                             <LinearGradient
                                 colors={isActive ? item.activeColors : item.inactiveColors}
@@ -213,7 +212,7 @@ export default function StatusIcons({ status, studentId, attendanceRecord, isCha
                                 {isActive ? item.iconComponent : (
                                     <View style={styles.inactiveIcon}>
                                         {React.cloneElement(item.iconComponent, {
-                                            color: "#ff0000ff",
+                                            color: isActive ? "#fff" : item.textColor,
                                             size: 20
                                         })}
                                     </View>
@@ -232,15 +231,18 @@ export default function StatusIcons({ status, studentId, attendanceRecord, isCha
             <View style={styles.iconsContainer}>
                 {filteredData.map((item) => {
                     // Use local state for immediate UI update, fallback to attendanceRecord
-                    const currentStatus = localAttendanceStatus || attendanceRecord?.attendanceStatus;
+                    const currentStatus = localAttendanceStatus || attendanceRecord?.attendanceInfo.attendanceStatus;
                     const isActive = item.key === currentStatus;
                     return (
-                        <Pressable key={item.key} style={styles.iconButton}
-                            onPress={() => mutationMarkAttendance.mutate({
-                                newStatus: item.key,
-                                idClassSession: attendanceRecord?.idClassSession || '',
-                                idStudent: studentId
-                            })}
+                        <Pressable
+                            key={item.key}
+                            style={styles.iconButton}
+                            onPress={() => {
+                                if (!mutationMarkAttendance.isPending && !isChangingStatus) {
+                                    mutationMarkAttendance.mutate(item.key);
+                                }
+                            }}
+                            disabled={mutationMarkAttendance.isPending || isChangingStatus || isUpdatable}
                         >
                             <LinearGradient
                                 colors={isActive ? item.activeColors : item.inactiveColors}
@@ -255,16 +257,6 @@ export default function StatusIcons({ status, studentId, attendanceRecord, isCha
                                     </View>
                                 )}
                             </LinearGradient>
-                            {/* <View style={[styles.iconGradient, isActive && styles.activeIconGradient]}>
-                                {isActive ? item.iconComponent : (
-                                    <View style={styles.inactiveIcon}>
-                                        {React.cloneElement(item.iconComponent, {
-                                            color: isActive ? "#fff" : item.textColor,
-                                            size: 20
-                                        })}
-                                    </View>
-                                )}
-                            </View> */}
                         </Pressable>
                     );
                 })}

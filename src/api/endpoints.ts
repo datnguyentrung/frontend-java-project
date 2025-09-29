@@ -1,5 +1,4 @@
 const API_PREFIX = "/api/v1";
-import { MarkAttendance, MarkEvaluation } from "../types/types";
 
 export const endpoints = {
     auth: {
@@ -35,18 +34,32 @@ export const endpoints = {
         classSession: (id: string | number) => `${API_PREFIX}/students/class-session/${id}`,
         startDate: (id: string | number) => `${API_PREFIX}/students/start-date/${id}`,
     },
-    basicAttendance: {
-        list: `${API_PREFIX}/basic-attendance`,
-        detail: (id: string | number) => `${API_PREFIX}/basic-attendance/${id}`,
-        classSession: (id: string | number) => `${API_PREFIX}/basic-attendance/class-session/${id}`,
-        attendance: (attendance: MarkAttendance) => `${API_PREFIX}/basic-attendance/attendance`,
-        evaluation: (evaluation: MarkEvaluation) => `${API_PREFIX}/basic-attendance/evaluation`,
+    studentAttendance: {
+        list: `${API_PREFIX}/student-attendance`,
+        detail: (id: string | number) => `${API_PREFIX}/student-attendance/${id}`,
+        classSession: (id: string | number) => `${API_PREFIX}/student-attendance/class-session/${id}`,
+        attendance: `${API_PREFIX}/student-attendance/attendance`,
+        evaluation: `${API_PREFIX}/student-attendance/evaluation`,
         studentByYearAndQuarter: (id: string | number) =>
-            `${API_PREFIX}/basic-attendance/students/${id}`,
+            `${API_PREFIX}/student-attendance/students/${id}`,
     },
     coachAttendance: {
         list: `${API_PREFIX}/coach-attendance`,
         detail: (id: string | number) => `${API_PREFIX}/coach-attendance/${id}`,
         byYearAndMonth: (id: string | number) => `${API_PREFIX}/coach-attendance/${id}/year-month`
+    },
+    trialAttendance: {
+        list: `${API_PREFIX}/trial-attendance`,
+        create: `${API_PREFIX}/trial-attendance`,
+        evaluation: `${API_PREFIX}/trial-attendance/evaluation`,
+        today: `${API_PREFIX}/trial-attendance/today`,
+        date: (date: string) => `${API_PREFIX}/trial-attendance/date/${date}`,
+    },
+    embedding: {
+        send: `${API_PREFIX}/embeddings`,
+    },
+    registration: {
+        list: `${API_PREFIX}/registration`,
+        detail: (id: string | number) => `${API_PREFIX}/registration/${id}`,
     }
 };

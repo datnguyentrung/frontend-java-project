@@ -1,26 +1,30 @@
-import { View, Text, StyleSheet, Image } from "react-native";
-import { Student, Attendance } from "@/types/types";
+import { View, Text, StyleSheet } from "react-native";
+import { Attendance } from "@/types/AttendanceTypes";
+import { Student } from "@/types/StudentTypes";
 import React, { useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { getStudentByClassSession } from "@/services/studentsService";
-import { getBasicAttendanceByClassSession } from "@/services/basicAttendanceService";
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { getStudentByClassSession } from "@/services/training/studentsService";
+import { getStudentAttendanceByClassSession } from "@/services/attendance/studentAttendanceService";
 import StatusIcons from "./StatusIcons";
 import LoadingScreen from '@screens/LoadingScreen';
 
 type Props = {
     selectedClassSession: string | null,
     status: "attendance" | "evaluation",
-    refreshing: boolean,
     isChangingStatus?: boolean,
     onStatusChangeComplete?: () => void,
 }
 
-export default function StudentAttendance({ selectedClassSession, status, refreshing, isChangingStatus, onStatusChangeComplete }: Props) {
+export default function StudentAttendance({ selectedClassSession, status, isChangingStatus, onStatusChangeComplete }: Props) {
     const [listStudent, setListStudent] = React.useState<Student[]>([]);
     const [listAttendance, setListAttendance] = React.useState<Attendance[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [loadingRecord, setLoadingRecord] = React.useState(false);
+
+    // console.log('listAttendance: ', listAttendance);
+
+    // console.log('listStudent: ', listStudent);
 
     // 1. Lấy danh sách học sinh
     useEffect(() => {
@@ -49,7 +53,7 @@ export default function StudentAttendance({ selectedClassSession, status, refres
                 try {
                     const todayLocal = new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD
                     const date = new Date(todayLocal);
-                    const attendance = await getBasicAttendanceByClassSession(selectedClassSession, date);
+                    const attendance = await getStudentAttendanceByClassSession(selectedClassSession, date);
                     setListAttendance(attendance);
                 } catch (error) {
                     console.error("Error fetching attendance records:", error);
@@ -63,7 +67,7 @@ export default function StudentAttendance({ selectedClassSession, status, refres
 
             fetchAttendanceRecords();
         }
-    }, [selectedClassSession, loadingRecord]);
+    }, [selectedClassSession, loadingRecord, isChangingStatus]);
 
     // Call onStatusChangeComplete when status change is complete and component is rendered
     React.useEffect(() => {
@@ -88,16 +92,21 @@ export default function StudentAttendance({ selectedClassSession, status, refres
                     </View>
                 ) : (
                     listStudent.map((student: Student) => {
-                        const attendanceRecord: Attendance | undefined = listAttendance.find(record => record.id === student.idStudent);
+                        const attendanceRecord: Attendance | undefined = listAttendance.find(record => record.idStudent === student.personalInfo.idAccount);
                         const hasAttendanceRecord = !!attendanceRecord;
 
+                        const isUpdatableEvaluation = (attendanceRecord?.attendanceInfo.attendanceStatus === 'P'
+                            || attendanceRecord?.attendanceInfo.attendanceStatus === 'V')
+                            && status === 'evaluation';
+
+                        const isUpdatable = !hasAttendanceRecord || isUpdatableEvaluation;
                         return (
-                            <View key={student.idStudent} style={[
+                            <View key={student.personalInfo.idAccount} style={[
                                 styles.studentCard,
-                                !hasAttendanceRecord && styles.noRecordCard
+                                isUpdatable && styles.noRecordCard
                             ]}>
                                 <LinearGradient
-                                    colors={hasAttendanceRecord ? ['#ffffff', '#f8f9fa'] : ['#f5f5f5', '#e8e8e8']}
+                                    colors={isUpdatable ? ['#f5f5f5', '#e8e8e8'] : ['#ffffff', '#f8f9fa']}
                                     style={styles.cardGradient}
                                 >
                                     {/* Overlay for students without attendance record */}
@@ -110,39 +119,51 @@ export default function StudentAttendance({ selectedClassSession, status, refres
                                         </View>
                                     )}
 
+                                    {(attendanceRecord?.attendanceInfo.attendanceStatus === 'V' ||
+                                        attendanceRecord?.attendanceInfo.attendanceStatus === 'P'
+                                    ) && status === 'evaluation' && (
+                                            <View style={styles.noRecordOverlay}>
+                                                <View style={styles.noRecordBadge}>
+                                                    <Ionicons name="alert-circle-outline" size={16} color="#666" />
+                                                    <Text style={styles.noRecordText}>Học viên vắng mặt</Text>
+                                                </View>
+                                            </View>
+                                        )}
+
+
                                     <View style={[
                                         styles.studentRow,
-                                        !hasAttendanceRecord && styles.studentRowDisabled
+                                        isUpdatable && styles.studentRowDisabled
                                     ]}>
                                         <View style={styles.studentInfo}>
                                             <View style={styles.avatarContainer}>
                                                 <LinearGradient
-                                                    colors={hasAttendanceRecord ? ['#667eea', '#764ba2'] : ['#bbb', '#999']}
+                                                    colors={isUpdatable ? ['#bbb', '#999'] : ['#667eea', '#764ba2']}
                                                     style={styles.avatar}
                                                 >
                                                     <Text style={styles.avatarText}>
-                                                        {student.name?.charAt(0)?.toUpperCase() || 'S'}
+                                                        {student.personalInfo.name?.charAt(0)?.toUpperCase() || 'S'}
                                                     </Text>
                                                 </LinearGradient>
                                             </View>
                                             <View style={styles.studentDetails}>
                                                 <Text style={[
                                                     styles.studentName,
-                                                    !hasAttendanceRecord && styles.studentNameDisabled
+                                                    isUpdatable && styles.studentNameDisabled
                                                 ]}>
-                                                    {student.name}
+                                                    {student.personalInfo.name || 'Học viên'}
                                                 </Text>
                                                 <View style={styles.detailRow}>
                                                     <Ionicons
                                                         name="school-outline"
                                                         size={14}
-                                                        color={hasAttendanceRecord ? "#666" : "#999"}
+                                                        color={isUpdatable ? "#999" : "#666"}
                                                     />
                                                     <Text style={[
                                                         styles.studentLevel,
-                                                        !hasAttendanceRecord && styles.studentLevelDisabled
+                                                        isUpdatable && styles.studentLevelDisabled
                                                     ]}>
-                                                        Cấp độ: {student.studentLevel}
+                                                        Cấp độ: {student.academicInfo.beltLevel || 'Chưa cập nhật'}
                                                     </Text>
                                                 </View>
                                             </View>
@@ -150,9 +171,9 @@ export default function StudentAttendance({ selectedClassSession, status, refres
                                         <View style={styles.statusContainer}>
                                             <StatusIcons
                                                 status={status}
-                                                studentId={student.idStudent}
                                                 attendanceRecord={attendanceRecord}
                                                 isChangingStatus={isChangingStatus}
+                                                isUpdatable={isUpdatable}
                                             // setLoadingRecord={setLoadingRecord}
                                             />
                                         </View>

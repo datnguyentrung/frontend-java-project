@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Feature } from '../types/types';
+import { Feature } from '@/types/FeatureTypes';
 import { useDatabaseConnection } from '../providers';
 import {
     insertQuickAccessFeature,
@@ -13,7 +13,7 @@ import {
 // Query keys để cache management
 const QUERY_KEYS = {
     quickAccess: ['quickAccess'] as const,
-    checkFeature: (id: number) => ['quickAccess', 'check', id] as const,
+    checkFeature: (id: string) => ['quickAccess', 'check', id] as const,
 };
 
 export const useQuickAccess = () => {
@@ -30,7 +30,7 @@ export const useQuickAccess = () => {
         queryKey: QUERY_KEYS.quickAccess,
         queryFn: async () => {
             const features = await getQuickAccessFeatures(db);
-            console.log('Loaded quick access features:', features.map(f => f.title));
+            console.log('Loaded quick access features:', features.map(f => f.featureName));
             return features;
         },
         enabled: !!db, // Chỉ chạy khi db đã sẵn sàng
@@ -65,17 +65,17 @@ export const useQuickAccess = () => {
 
     // ✅ Mutation để xóa feature khỏi quick access
     const removeFromQuickAccessMutation = useMutation({
-        mutationFn: async (feature_id: number) => {
-            const success = await deleteQuickAccessFeature(db, feature_id);
+        mutationFn: async (idFeature: string) => {
+            const success = await deleteQuickAccessFeature(db, idFeature);
             if (!success) {
                 throw new Error('Failed to remove feature');
             }
-            return feature_id;
+            return idFeature;
         },
-        onSuccess: (feature_id) => {
+        onSuccess: (idFeature) => {
             // Invalidate và refetch quick access data
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.quickAccess });
-            console.log('Feature removed from quick access:', feature_id);
+            console.log('Feature removed from quick access:', idFeature);
         },
         onError: (error) => {
             console.error('Error removing from quick access:', error);
@@ -84,12 +84,12 @@ export const useQuickAccess = () => {
 
     // ✅ Mutation để update feature trong quick access
     const updateQuickAccessMutation = useMutation({
-        mutationFn: async ({ feature_id, updates }: { feature_id: number; updates: Partial<Feature> }) => {
-            const success = await updateQuickAccessFeature(db, feature_id, updates);
+        mutationFn: async ({ idFeature, updates }: { idFeature: string; updates: Partial<Feature> }) => {
+            const success = await updateQuickAccessFeature(db, idFeature, updates);
             if (!success) {
                 throw new Error('Failed to update feature');
             }
-            return { feature_id, updates };
+            return { idFeature, updates };
         },
         onSuccess: () => {
             // Invalidate và refetch quick access data
@@ -118,13 +118,13 @@ export const useQuickAccess = () => {
     });
 
     // ✅ Hook để check feature có trong quick access không
-    const useCheckFeatureInQuickAccess = (feature_id: number) => {
+    const useCheckFeatureInQuickAccess = (idFeature: string) => {
         return useQuery({
-            queryKey: QUERY_KEYS.checkFeature(feature_id),
+            queryKey: QUERY_KEYS.checkFeature(idFeature),
             queryFn: async () => {
-                return await isFeatureInQuickAccess(db, feature_id);
+                return await isFeatureInQuickAccess(db, idFeature);
             },
-            enabled: !!db && !!feature_id,
+            enabled: !!db && !!idFeature,
             staleTime: 1000 * 60 * 2, // 2 phút
         });
     };
@@ -139,18 +139,18 @@ export const useQuickAccess = () => {
         }
     };
 
-    const removeFromQuickAccess = async (feature_id: number) => {
+    const removeFromQuickAccess = async (idFeature: string) => {
         try {
-            await removeFromQuickAccessMutation.mutateAsync(feature_id);
+            await removeFromQuickAccessMutation.mutateAsync(idFeature);
             return true;
         } catch (error) {
             return false;
         }
     };
 
-    const updateQuickAccess = async (feature_id: number, updates: Partial<Feature>) => {
+    const updateQuickAccess = async (idFeature: string, updates: Partial<Feature>) => {
         try {
-            await updateQuickAccessMutation.mutateAsync({ feature_id, updates });
+            await updateQuickAccessMutation.mutateAsync({ idFeature, updates });
             return true;
         } catch (error) {
             return false;
@@ -166,9 +166,9 @@ export const useQuickAccess = () => {
         }
     };
 
-    const checkIfInQuickAccess = async (feature_id: number) => {
+    const checkIfInQuickAccess = async (idFeature: string) => {
         try {
-            return await isFeatureInQuickAccess(db, feature_id);
+            return await isFeatureInQuickAccess(db, idFeature);
         } catch (error) {
             console.error('Error checking quick access:', error);
             return false;

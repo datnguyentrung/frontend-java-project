@@ -1,36 +1,6 @@
 import { ReactNode } from 'react';
 
-export interface Feature {
-    idFeature: number; // Java
-    featureGroup: string; // Java
-    title: string;
-    roles: string[];
-    icon: string;
-    active: boolean;
-}
 
-export interface FeatureWithIcon extends Feature {
-    iconComponent: any;
-}
-
-export interface Student {
-    idStudent: string;
-    name: string;
-    studentLevel: string;
-    birthday: Date;
-    idBranch: number;
-    idClassSession: string[];
-    phone: string;
-    active: boolean;
-}
-
-export interface Attendance {
-    id: string;
-    date: Date;
-    idClassSession: string;
-    attendanceStatus: string; // "X", "V", "M", "P", "B"
-    evaluationStatus: string; // "T", "TB", "Y"
-}
 
 export interface BasicAttendance {
     idStudent: string;
@@ -46,18 +16,14 @@ export interface BasicAttendance {
     evaluationCoach: string;
 }
 
-export interface MarkAttendance {
-    idStudent: string;
-    idClassSession: string;
-    date: Date;
-    attendanceStatus: string; // "X", "V", "M", "P", "B"
-}
-
-export interface MarkEvaluation {
-    idStudent: string;
-    idClassSession: string;
-    date: Date;
-    evaluationStatus: string; // "T", "TB", "Y"
+export interface Mark {
+    id?: number;
+    idStudent?: string;
+    idClassSession?: string;
+    date?: Date;
+    attendanceStatus?: string; // "X", "V", "M", "P", "B"
+    evaluationStatus?: string; // "T", "TB", "Y"
+    note?: string;
 }
 
 export interface UserInfo {
@@ -102,16 +68,7 @@ export interface Branch {
     isNew: boolean;
 }
 
-export interface ClassSession {
-    idClassSession: string;
-    location: string;
-    shift: number;
-    classLevel: string;
-    idBranch: number;
-    weekday: number;
-    active: boolean;
-    session: string
-}
+
 
 export interface ConductScore {
     absentSession: number,
@@ -196,4 +153,15 @@ export interface CoachAttendance {
     datetime: Date;
     classSession: ClassSessionAttendance;
     imageFileName: string;
+}
+
+export interface Registration {
+    idStudent: string;
+    birthday: Date;
+    name: string;
+    phone: string;
+    referredBy: string;
+    registrationClass?: string;
+    registrationDate?: Date;
+    status: 'ENROLL' | 'TRIAL' | 'ENDED' | 'REGISTERED';
 }

@@ -1,5 +1,3 @@
-
-
 // Mapping từ feature title đến screen name
 export const featureScreenMap: Record<string, string> = {
     "GOAT points": "GoatPointsScreen",
@@ -16,7 +14,7 @@ export const featureScreenMap: Record<string, string> = {
     "Cơ sở": "BranchScreen",
     "Ghi danh": "EnrollmentScreen",
     "Điểm danh tập thử": "TrialAttendanceScreen",
-    "Chấm công": "CoachAttendanceScreen"
+    "Chấm công": "CoachAttendanceScreen",
 };
 
 // Hàm helper để lấy screen name từ feature title

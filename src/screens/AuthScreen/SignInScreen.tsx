@@ -5,7 +5,6 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
-    SafeAreaView,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
@@ -14,10 +13,12 @@ import {
     Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '@providers/AuthProvider';
 import { loginAPI } from '../../services/authService';
 import { useEffect } from 'react';
+import { getDeviceInfo } from '@utils/deviceInfo';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,7 +28,16 @@ export default function SignInScreen() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [idDevice, setIdDevice] = useState<string | null>(null);
     const { signIn } = useAuth();
+
+    useEffect(() => {
+        const fetchDeviceInfo = async () => {
+            const { uniqueId } = await getDeviceInfo();
+            setIdDevice(uniqueId);
+        };
+        fetchDeviceInfo();
+    }, []);
 
     const handleSignIn = async () => {
         if (!userId.trim()) {
@@ -40,39 +50,51 @@ export default function SignInScreen() {
             return;
         }
 
+        if (!idDevice) {
+            Alert.alert('Lỗi', 'Không lấy được ID thiết bị');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
             // Call real API
             const loginResult = await loginAPI({
-                username: userId.trim(),
+                idAccount: userId.trim(),
                 password: password.trim(),
+                idDevice: idDevice || '', // Ensure idDevice is a string
             });
 
-            if ((loginResult.status || loginResult.statusCode === 200) && loginResult.data) {
-                // Prepare user data with tokens
-                const userData = {
-                    username: userId.trim(),
-                    password: password.trim(),
-                    access_token: loginResult.data.access_token,
-                    refresh_token: loginResult.data.refresh_token,
-                    info: {
-                        idUser: loginResult.data.user.idUser,
-                        name: loginResult.data.user.name,
-                        email: loginResult.data.user.email,
-                        role: loginResult.data.user.role,
-                    },
-                };
+            switch (loginResult?.statusCode || loginResult?.status) {
+                case 200:
+                    // Prepare user data with tokens
+                    const userData = {
+                        username: userId.trim(),
+                        password: password.trim(),
+                        access_token: loginResult?.data.access_token,
+                        refresh_token: loginResult?.data.refresh_token,
+                        info: {
+                            idUser: loginResult?.data.user.idAccount,
+                            role: loginResult?.data.user.role,
+                        },
+                    };
 
-                await signIn(userData);
+                    await signIn(userData);
 
-                Alert.alert(
-                    'Đăng nhập thành công!',
-                    `Chào mừng ${loginResult.data.user.name} đến với ứng dụng`
-                );
-            } else {
-                // Alert.alert('Lỗi', loginResult.message || 'Đăng nhập thất bại');
-                Alert.alert('Đăng nhập thất bại 😥', loginResult.statusText || 'Email hoặc mật khẩu không đúng');
+                    Alert.alert(
+                        '🎉 Đăng nhập thành công!',
+                        `Chào mừng bạn đến với ứng dụng`
+                    );
+                    break;
+                case 400:
+                    Alert.alert("❌ Đăng nhập thất bại", "Sai mật khẩu rồi 😥\nThử lại nhé!");
+                    break;
+                case 500:
+                    Alert.alert("⚠️ Không tìm thấy tài khoản", "Vui lòng kiểm tra lại thông tin đăng nhập 🔍");
+                    break;
+                default:
+                    Alert.alert("🚨 Lỗi không xác định", "Vui lòng thử lại sau.");
+                    break;
             }
         } catch (error) {
             Alert.alert('Lỗi', 'Đăng nhập thất bại. Vui lòng thử lại.');
@@ -130,7 +152,7 @@ export default function SignInScreen() {
                                 {/* User ID Input */}
                                 <View style={styles.inputContainer}>
                                     <View style={styles.inputIconContainer}>
-                                        <Ionicons name="person" size={20} color="#FF5252" />
+                                        <Ionicons name="person-circle-outline" size={20} color="#FF5252" />
                                     </View>
                                     <TextInput
                                         style={styles.textInput}

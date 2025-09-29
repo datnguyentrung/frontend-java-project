@@ -18,16 +18,16 @@ module.exports = function (api) {
                         '@navigation': './src/navigation',
                         '@store': './src/store',
                         '@providers': './src/providers',
-                        '@types': './src/types'
+                        '@types': './src/types',
                     },
                 },
             ],
-            'react-native-reanimated/plugin', // <-- thay đổi để sử dụng reanimated plugin
+            'react-native-worklets/plugin', // ✅ chỉ cần để thẳng như thế này
             [
                 'module:react-native-dotenv',
                 {
                     moduleName: '@env',
-                    path: '.env',   // 👈 chỉ rõ file .env nằm ở root (cùng cấp babel.config.js và package.json)
+                    path: '.env', // 👈 chỉ rõ file .env nằm ở root
                 },
             ],
         ],

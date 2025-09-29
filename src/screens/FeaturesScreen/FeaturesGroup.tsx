@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { gradients } from '@/styles/gradients';
 import { View, Text, FlatList, StyleSheet, Pressable, Alert } from 'react-native';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuickAccess } from '@/store/useQuickAccess';
 import { fontStyles } from '@/utils/fonts';
 import FontAwesome from '@expo/vector-icons/FontAwesome'
@@ -124,7 +124,7 @@ export default function FeaturesGroup({
                 data={filteredFeatures}
                 numColumns={4}   // 4 cột
                 scrollEnabled={false}
-                keyExtractor={(item) => item.idFeature.toString()}
+                keyExtractor={(item, index) => index.toString()}
                 // columnWrapperStyle={{ gap: 10 }}
                 renderItem={({ item }) => {
                     const IconComponent = item.iconComponent;
@@ -136,7 +136,7 @@ export default function FeaturesGroup({
                         <Pressable style={styles.box} >
                             <Pressable
                                 disabled={canChange}
-                                onPress={() => handleButtonPress(item.title)}
+                                onPress={() => handleButtonPress(item.featureName)}
                                 style={[
                                     styles.iconContainer,
                                     {
@@ -145,10 +145,14 @@ export default function FeaturesGroup({
                                                 : "#ffcccca2"
                                     }
                                 ]}>
-                                <IconComponent
-                                    size={30}
-                                    color="#bc0000ff"
-                                />
+                                {IconComponent ? (
+                                    <IconComponent
+                                        size={30}
+                                        color="#bc0000ff"
+                                    />
+                                ) : (
+                                    <Text style={{ fontSize: 30, color: "#bc0000ff" }}>?</Text>
+                                )}
                             </Pressable>
                             {!(isInQuickAccess && !isQuickAccess) && renderButtonChange(item)}
                             <Text style={[
@@ -160,7 +164,7 @@ export default function FeaturesGroup({
                                     letterSpacing: 1,
                                 }
                             ]}>
-                                {item.title}
+                                {item.featureName}
                             </Text>
                         </Pressable>
                     );

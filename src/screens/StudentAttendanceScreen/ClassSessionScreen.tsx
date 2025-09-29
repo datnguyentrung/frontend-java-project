@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { ClassSession } from "@/types/types";
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { ClassSession } from "@/types/ClassSessionTypes";
 
 type Props = {
     selectedClassSession: string | null,
@@ -11,25 +11,29 @@ type Props = {
 };
 
 const weekdays = [
-    { key: 1, label: 'CN' },
-    { key: 2, label: 'T2' },
-    { key: 3, label: 'T3' },
-    { key: 4, label: 'T4' },
-    { key: 5, label: 'T5' },
-    { key: 6, label: 'T6' },
-    { key: 7, label: 'T7' },
+    { key: 1, label: 'CN', context: 'SUNDAY' },
+    { key: 2, label: 'T2', context: 'MONDAY' },
+    { key: 3, label: 'T3', context: 'TUESDAY' },
+    { key: 4, label: 'T4', context: 'WEDNESDAY' },
+    { key: 5, label: 'T5', context: 'THURSDAY' },
+    { key: 6, label: 'T6', context: 'FRIDAY' },
+    { key: 7, label: 'T7', context: 'SATURDAY' },
 ]
 
 export default function ClassSessionScreen({ selectedClassSession, setSelectedClassSession, listClassSessions }: Props) {
     const [filteredSessions, setFilteredSessions] = useState<ClassSession[]>([]);
-    const [selectedWeekday, setSelectedWeekday] = React.useState<number | null>(
-        new Date().getDay() === 0 ? 1 : new Date().getDay() + 1
+    const [selectedWeekday, setSelectedWeekday] = React.useState<string | null>(
+        new Date().getDay() === 0 ? 'SUNDAY' : weekdays[new Date().getDay()].context
     );
+
+    // console.log(listClassSessions);
 
     useEffect(() => {
         let filtered;
         if (selectedWeekday !== null) {
-            filtered = listClassSessions.filter(session => session.weekday === selectedWeekday);
+            filtered = listClassSessions
+                .filter(session => session.weekday === selectedWeekday)
+                .sort((a, b) => a.idBranch - b.idBranch || a.shift.localeCompare(b.shift));
         } else {
             filtered = listClassSessions;
         }
@@ -54,13 +58,13 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
                         <Pressable
                             style={[
                                 styles.weekdayItem,
-                                item.key === selectedWeekday && styles.activeWeekdayItem,
+                                item.context === selectedWeekday && styles.activeWeekdayItem,
                             ]}
-                            onPress={() => setSelectedWeekday(item.key)}
+                            onPress={() => setSelectedWeekday(item.context)}
                         >
                             <Text style={[
                                 styles.weekdayText,
-                                item.key === selectedWeekday && styles.activeWeekdayText
+                                item.context === selectedWeekday && styles.activeWeekdayText
                             ]}>
                                 {item.label}
                             </Text>
@@ -74,68 +78,70 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Chọn lớp học</Text>
                 <View style={styles.classSessionContainer}>
-                    {filteredSessions.map((session) => (
-                        <Pressable
-                            key={session.idClassSession}
-                            style={[
-                                styles.classSessionItem,
-                                selectedClassSession === session.idClassSession && styles.activeClassSessionItem
-                            ]}
-                            onPress={() => {
-                                setSelectedClassSession(session.idClassSession);
-                            }}
-                        >
-                            <LinearGradient
-                                colors={selectedClassSession === session.idClassSession
-                                    ? ['#ff5252', '#ff1744']
-                                    : ['#ffffff', '#f5f5f5']
-                                }
-                                style={styles.classSessionGradient}
+                    {filteredSessions
+
+                        .map((session) => (
+                            <Pressable
+                                key={session.idClassSession}
+                                style={[
+                                    styles.classSessionItem,
+                                    selectedClassSession === session.idClassSession && styles.activeClassSessionItem
+                                ]}
+                                onPress={() => {
+                                    setSelectedClassSession(session.idClassSession);
+                                }}
                             >
-                                <View style={styles.classSessionHeader}>
-                                    <Ionicons
-                                        name="business-outline"
-                                        size={20}
-                                        color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
-                                    />
-                                    <Text style={[
-                                        styles.branchText,
-                                        selectedClassSession === session.idClassSession && styles.activeText
-                                    ]}>
-                                        Cơ sở {session.idBranch}
-                                    </Text>
-                                </View>
-                                <View style={styles.classSessionDetails}>
-                                    <View style={styles.detailRow}>
+                                <LinearGradient
+                                    colors={selectedClassSession === session.idClassSession
+                                        ? ['#ff5252', '#ff1744']
+                                        : ['#ffffff', '#f5f5f5']
+                                    }
+                                    style={styles.classSessionGradient}
+                                >
+                                    <View style={styles.classSessionHeader}>
                                         <Ionicons
-                                            name="time-outline"
-                                            size={16}
+                                            name="business-outline"
+                                            size={20}
                                             color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
                                         />
                                         <Text style={[
-                                            styles.sessionDetailText,
+                                            styles.branchText,
                                             selectedClassSession === session.idClassSession && styles.activeText
                                         ]}>
-                                            {session.session === 'am' ? 'Sáng' : 'Tối'} - Ca {session.shift}
+                                            Cơ sở {session.idBranch}
                                         </Text>
                                     </View>
-                                    <View style={styles.detailRow}>
-                                        <Ionicons
-                                            name="location-outline"
-                                            size={16}
-                                            color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
-                                        />
-                                        <Text style={[
-                                            styles.sessionDetailText,
-                                            selectedClassSession === session.idClassSession && styles.activeText
-                                        ]}>
-                                            {session.location || 'Phòng học'}
-                                        </Text>
+                                    <View style={styles.classSessionDetails}>
+                                        <View style={styles.detailRow}>
+                                            <Ionicons
+                                                name="time-outline"
+                                                size={16}
+                                                color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
+                                            />
+                                            <Text style={[
+                                                styles.sessionDetailText,
+                                                selectedClassSession === session.idClassSession && styles.activeText
+                                            ]}>
+                                                {session.session === 'am' ? 'Sáng' : 'Tối'} - Ca {session.shift.replace('SHIFT_', '')}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.detailRow}>
+                                            <Ionicons
+                                                name="location-outline"
+                                                size={16}
+                                                color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
+                                            />
+                                            <Text style={[
+                                                styles.sessionDetailText,
+                                                selectedClassSession === session.idClassSession && styles.activeText
+                                            ]}>
+                                                {session.location === 'INDOOR' ? 'Phòng tập' : 'Ngoài sân'}
+                                            </Text>
+                                        </View>
                                     </View>
-                                </View>
-                            </LinearGradient>
-                        </Pressable>
-                    ))}
+                                </LinearGradient>
+                            </Pressable>
+                        ))}
                 </View>
                 {filteredSessions.length === 0 && (
                     <View style={styles.emptyContainer}>
