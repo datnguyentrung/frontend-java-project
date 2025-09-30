@@ -1,7 +1,5 @@
 import { ReactNode } from 'react';
 
-
-
 export interface BasicAttendance {
     idStudent: string;
     date: Date;
@@ -54,6 +52,11 @@ export interface AuthContextType {
     getAccessToken: () => Promise<string | null>;
 }
 
+export interface BeltLevel {
+    label: string;
+    backgroundColor: string;
+    color: string;
+}
 
 export interface AuthProviderProps {
     children: ReactNode;

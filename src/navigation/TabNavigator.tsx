@@ -5,7 +5,7 @@ import { House, User, Bell, LayoutGrid, ScanLine } from 'lucide-react-native';
 
 // Import các màn hình
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import FeaturesScreen from '../screens/FeaturesScreen/FeaturesScreen';
 import NotificationScreen from '@/screens/NotificationScreen/NotificationScreen';
 import ScanScreen from '@/screens/ScanScreen/ScanScreen';

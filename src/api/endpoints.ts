@@ -9,6 +9,7 @@ export const endpoints = {
     user: {
         list: `${API_PREFIX}/users/`,  // ✅ Thêm trailing slash
         update: `${API_PREFIX}/users/update`,
+        me: `${API_PREFIX}/users/me`,
     },
     summary: {
         list: `${API_PREFIX}/summary`,

@@ -1,5 +1,5 @@
-import axiosInstance from '../api/axiosInstance';
-import { endpoints } from '../api/endpoints';
+import axiosInstance from "@/api/axiosInstance";
+import { endpoints } from "@/api/endpoints";
 
 export interface RefreshTokenRequest {
     refresh_token: string;

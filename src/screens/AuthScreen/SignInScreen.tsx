@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '@providers/AuthProvider';
-import { loginAPI } from '../../services/authService';
+import { loginAPI } from '@/services/auth/authService';
 import { useEffect } from 'react';
 import { getDeviceInfo } from '@utils/deviceInfo';
 

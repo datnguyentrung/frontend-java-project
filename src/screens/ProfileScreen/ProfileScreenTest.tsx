@@ -7,7 +7,7 @@ import { UserInfo } from '@/types/types';
  * ProfileScreen - Màn hình hồ sơ cá nhân
  * Hiển thị thông tin về người dùng và chức năng đăng xuất
  */
-const ProfileScreen = () => {
+export default function ProfileScreenTest() {
     const { signOut, user } = useAuth();
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
@@ -211,5 +211,3 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
 });
-
-export default ProfileScreen;

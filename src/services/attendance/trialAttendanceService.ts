@@ -34,7 +34,7 @@ export const getTrialAttendanceByDate = async (date: Date) => {
 export const getTodayTrialAttendance = async () => {
     try {
         const response = await axiosInstance.get(endpoints.trialAttendance.today);
-        console.log("Today's Trial Attendance Response:", response.data);
+        // console.log("Today's Trial Attendance Response:", response.data);
         return response.data.data;
     } catch (error) {
         console.error("Error fetching today's trial attendance:", error);
