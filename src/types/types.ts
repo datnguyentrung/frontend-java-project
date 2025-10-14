@@ -71,8 +71,6 @@ export interface Branch {
     isNew: boolean;
 }
 
-
-
 export interface ConductScore {
     absentSession: number,
     late: number,

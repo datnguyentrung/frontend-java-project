@@ -145,128 +145,99 @@ export default function EnrollmentModalClassSessionScreen({ setVisible, selected
     // console.log("Mark State:", mark);
 
     return (
-        <View style={styles.container}>
-            <View style={styles.card}>
-                <View style={styles.headerCard}>
-                    <Text style={styles.headerText}>Điểm danh tập thử</Text>
-                    <Pressable style={styles.xButton} onPress={() => setVisible(false)}>
-                        <AntDesign name="close" size={16} color="black" />
-                    </Pressable>
+        <View style={styles.card}>
+            <View style={styles.headerCard}>
+                <Text style={styles.headerText}>Điểm danh tập thử</Text>
+                <Pressable style={styles.xButton} onPress={() => setVisible(false)}>
+                    <AntDesign name="close" size={16} color="black" />
+                </Pressable>
+            </View>
+
+            {/* Nội dung modal ở đây */}
+            <View style={styles.content}>
+                {/* Thông tin học viên */}
+                <View style={styles.studentInfo}>
+                    <Ionicons name="person-outline" size={18} color={red[800]} style={styles.icon} />
+                    <View>
+                        <Text style={styles.label}>{selectedItem?.personalInfo.name}</Text>
+                        <Text style={{ color: gray[600], fontSize: 12 }}>Giới thiệu: {selectedItem?.personalInfo.referredBy}</Text>
+                    </View>
                 </View>
 
-                {/* Nội dung modal ở đây */}
-                <View style={styles.content}>
-                    {/* Thông tin học viên */}
-                    <View style={styles.studentInfo}>
-                        <Ionicons name="person-outline" size={18} color={red[800]} style={styles.icon} />
-                        <View>
-                            <Text style={styles.label}>{selectedItem?.personalInfo.name}</Text>
-                            <Text style={{ color: gray[600], fontSize: 12 }}>Giới thiệu: {selectedItem?.personalInfo.referredBy}</Text>
-                        </View>
-                    </View>
-
-                    {/* Thông tin lớp học */}
-                    <View style={styles.section}>
-                        {/* Thứ và Cơ sở cùng 1 hàng */}
-                        <View style={styles.row}>
-                            {/* Thứ */}
-                            <View style={styles.halfWidth}>
-                                <View style={styles.labelWithIcon}>
-                                    <Ionicons name="calendar-clear-outline" size={14} color="black" />
-                                    <Text style={styles.label}>Thứ</Text>
-                                </View>
-                                <DropDownPicker
-                                    open={openWeekday}
-                                    value={valueWeekday}
-                                    items={itemsWeekday}
-                                    setOpen={setOpenWeekday}
-                                    setValue={setValueWeekday}
-                                    setItems={setItemsWeekday}
-                                    placeholder='Chọn thứ'
-                                    placeholderStyle={styles.placeholderStyle}
-                                    style={styles.dropdownSmall}
-                                    dropDownContainerStyle={styles.dropdownContainer}
-                                    arrowIconStyle={styles.arrowIcon}
-                                    tickIconStyle={styles.tickIcon}
-                                    listMode="SCROLLVIEW"
-                                    zIndex={3000}
-                                    zIndexInverse={1000}
-                                />
-                            </View>
-
-                            {/* Cơ sở */}
-                            <View style={styles.halfWidth}>
-                                <View style={styles.labelWithIcon}>
-                                    <Ionicons name="location-outline" size={14} color="black" />
-                                    <Text style={styles.label}>Cơ sở</Text>
-                                </View>
-                                <DropDownPicker
-                                    open={openBranch}
-                                    value={valueBranch}
-                                    items={itemsBranch}
-                                    setOpen={setOpenBranch}
-                                    setValue={setValueBranch}
-                                    setItems={setItemsBranch}
-                                    placeholder='Chọn cơ sở'
-                                    placeholderStyle={styles.placeholderStyle}
-                                    style={styles.dropdownSmall}
-                                    dropDownContainerStyle={styles.dropdownContainer}
-                                    arrowIconStyle={styles.arrowIcon}
-                                    tickIconStyle={styles.tickIcon}
-                                    listMode="SCROLLVIEW"
-                                    zIndex={2000}
-                                    zIndexInverse={2000}
-                                />
-                            </View>
-                        </View>
-
-                        {/* Ca học */}
-                        <View style={styles.section}>
+                {/* Thông tin lớp học */}
+                <View style={styles.section}>
+                    {/* Thứ và Cơ sở cùng 1 hàng */}
+                    <View style={styles.row}>
+                        {/* Thứ */}
+                        <View style={styles.halfWidth}>
                             <View style={styles.labelWithIcon}>
-                                <Ionicons name="time-outline" size={14} color="black" />
-                                <Text style={styles.label}>Ca học</Text>
+                                <Ionicons name="calendar-clear-outline" size={14} color="black" />
+                                <Text style={styles.label}>Thứ</Text>
                             </View>
-                            <View style={styles.shiftButtonsContainer}>
-                                {shiftSession.map((item, index) => (
-                                    <Pressable
-                                        key={`shift-${item.session}-${item.shift}`}
-                                        style={[
-                                            styles.shiftButton,
-                                            selectedShiftSession === `${item.session}_${item.shift}` && styles.shiftButtonSelected
-                                        ]}
-                                        onPress={() => setSelectedShiftSession(`${item.session}_${item.shift}`)}
-                                    >
-                                        <Text style={[
-                                            styles.shiftButtonText,
-                                            selectedShiftSession === `${item.session}_${item.shift}` && styles.shiftButtonTextSelected
-                                        ]}>
-                                            {item.label}
-                                        </Text>
-                                    </Pressable>
-                                ))}
+                            <DropDownPicker
+                                open={openWeekday}
+                                value={valueWeekday}
+                                items={itemsWeekday}
+                                setOpen={setOpenWeekday}
+                                setValue={setValueWeekday}
+                                setItems={setItemsWeekday}
+                                placeholder='Chọn thứ'
+                                placeholderStyle={styles.placeholderStyle}
+                                style={styles.dropdownSmall}
+                                dropDownContainerStyle={styles.dropdownContainer}
+                                arrowIconStyle={styles.arrowIcon}
+                                tickIconStyle={styles.tickIcon}
+                                listMode="SCROLLVIEW"
+                                zIndex={3000}
+                                zIndexInverse={1000}
+                            />
+                        </View>
+
+                        {/* Cơ sở */}
+                        <View style={styles.halfWidth}>
+                            <View style={styles.labelWithIcon}>
+                                <Ionicons name="location-outline" size={14} color="black" />
+                                <Text style={styles.label}>Cơ sở</Text>
                             </View>
+                            <DropDownPicker
+                                open={openBranch}
+                                value={valueBranch}
+                                items={itemsBranch}
+                                setOpen={setOpenBranch}
+                                setValue={setValueBranch}
+                                setItems={setItemsBranch}
+                                placeholder='Chọn cơ sở'
+                                placeholderStyle={styles.placeholderStyle}
+                                style={styles.dropdownSmall}
+                                dropDownContainerStyle={styles.dropdownContainer}
+                                arrowIconStyle={styles.arrowIcon}
+                                tickIconStyle={styles.tickIcon}
+                                listMode="SCROLLVIEW"
+                                zIndex={2000}
+                                zIndexInverse={2000}
+                            />
                         </View>
                     </View>
 
-                    {/* Điểm danh */}
+                    {/* Ca học */}
                     <View style={styles.section}>
                         <View style={styles.labelWithIcon}>
-                            <Ionicons name="checkmark-circle-outline" size={14} color="black" />
-                            <Text style={styles.label}>Điểm danh</Text>
+                            <Ionicons name="time-outline" size={14} color="black" />
+                            <Text style={styles.label}>Ca học</Text>
                         </View>
-                        <View style={styles.attendanceButtons}>
-                            {attendanceData.map((item) => (
+                        <View style={styles.shiftButtonsContainer}>
+                            {shiftSession.map((item, index) => (
                                 <Pressable
-                                    key={`attendance-${item.key}`}
+                                    key={`shift-${item.session}-${item.shift}`}
                                     style={[
-                                        styles.attendanceButton,
-                                        mark?.attendanceInfo?.attendanceStatus === item.key && styles.attendanceButtonSelected
+                                        styles.shiftButton,
+                                        selectedShiftSession === `${item.session}_${item.shift}` && styles.shiftButtonSelected
                                     ]}
-                                    onPress={() => setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, attendanceStatus: item.key } })}
+                                    onPress={() => setSelectedShiftSession(`${item.session}_${item.shift}`)}
                                 >
                                     <Text style={[
-                                        styles.attendanceButtonText,
-                                        mark?.attendanceInfo?.attendanceStatus === item.key && styles.attendanceButtonTextSelected
+                                        styles.shiftButtonText,
+                                        selectedShiftSession === `${item.session}_${item.shift}` && styles.shiftButtonTextSelected
                                     ]}>
                                         {item.label}
                                     </Text>
@@ -274,61 +245,88 @@ export default function EnrollmentModalClassSessionScreen({ setVisible, selected
                             ))}
                         </View>
                     </View>
+                </View>
 
-                    {/* Đánh giá */}
-                    <View style={styles.section}>
-                        <View style={styles.labelWithIcon}>
-                            <Ionicons name="star-outline" size={14} color="black" />
-                            <Text style={styles.label}>Đánh giá buổi tập</Text>
-                        </View>
-                        <View style={styles.evaluationContainer}>
-                            <View style={styles.starsContainer}>
-                                {renderStars()}
-                            </View>
-                            <Text style={styles.evaluationText}>
-                                Trạng thái: {getEvaluationText()}
-                            </Text>
-                        </View>
+                {/* Điểm danh */}
+                <View style={styles.section}>
+                    <View style={styles.labelWithIcon}>
+                        <Ionicons name="checkmark-circle-outline" size={14} color="black" />
+                        <Text style={styles.label}>Điểm danh</Text>
                     </View>
-
-                    {/* Ghi chú */}
-                    <View style={styles.section}>
-                        <View style={styles.labelWithIcon}>
-                            <Ionicons name="pencil-outline" size={14} color="black" />
-                            <Text style={styles.label}>Ghi chú</Text>
-                        </View>
-                        <TextInput
-                            style={styles.noteInput}
-                            multiline
-                            numberOfLines={4}
-                            placeholder="Nhập ghi chú tại đây..."
-                            value={mark?.attendanceInfo.notes || ''}
-                            onChangeText={(text) => setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, notes: text } })}
-                        />
+                    <View style={styles.attendanceButtons}>
+                        {attendanceData.map((item) => (
+                            <Pressable
+                                key={`attendance-${item.key}`}
+                                style={[
+                                    styles.attendanceButton,
+                                    mark?.attendanceInfo?.attendanceStatus === item.key && styles.attendanceButtonSelected
+                                ]}
+                                onPress={() => setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, attendanceStatus: item.key } })}
+                            >
+                                <Text style={[
+                                    styles.attendanceButtonText,
+                                    mark?.attendanceInfo?.attendanceStatus === item.key && styles.attendanceButtonTextSelected
+                                ]}>
+                                    {item.label}
+                                </Text>
+                            </Pressable>
+                        ))}
                     </View>
                 </View>
 
-                {/* Footer */}
-                <View style={styles.footer}>
-                    <Pressable style={styles.button} onPress={() => setVisible(false)}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 12 }}>Hủy</Text>
-                    </Pressable>
-                    <Pressable style={[styles.button, { backgroundColor: red[600] }]} onPress={() => handleSubmit()}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 12, color: '#fff' }}>Điểm danh</Text>
-                    </Pressable>
+                {/* Đánh giá */}
+                <View style={styles.section}>
+                    <View style={styles.labelWithIcon}>
+                        <Ionicons name="star-outline" size={14} color="black" />
+                        <Text style={styles.label}>Đánh giá buổi tập</Text>
+                    </View>
+                    <View style={styles.evaluationContainer}>
+                        <View style={styles.starsContainer}>
+                            {renderStars()}
+                        </View>
+                        <Text style={styles.evaluationText}>
+                            Trạng thái: {getEvaluationText()}
+                        </Text>
+                    </View>
                 </View>
+
+                {/* Ghi chú */}
+                <View style={styles.section}>
+                    <View style={styles.labelWithIcon}>
+                        <Ionicons name="pencil-outline" size={14} color="black" />
+                        <Text style={styles.label}>Ghi chú</Text>
+                    </View>
+                    <TextInput
+                        style={styles.noteInput}
+                        multiline
+                        numberOfLines={4}
+                        placeholder="Nhập ghi chú tại đây..."
+                        value={mark?.attendanceInfo.notes || ''}
+                        onChangeText={(text) => setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, notes: text } })}
+                    />
+                </View>
+            </View>
+
+            {/* Footer */}
+            <View style={styles.footer}>
+                <Pressable style={styles.button} onPress={() => setVisible(false)}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 12 }}>Hủy</Text>
+                </Pressable>
+                <Pressable style={[styles.button, { backgroundColor: red[600] }]} onPress={() => handleSubmit()}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 12, color: '#fff' }}>Điểm danh</Text>
+                </Pressable>
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+    // container: {
+    //     flex: 1,
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    // },
     card: {
         width: width * 0.8,
         // height: height * 0.5,

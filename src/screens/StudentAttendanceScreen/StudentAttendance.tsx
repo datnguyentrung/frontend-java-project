@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Attendance } from "@/types/AttendanceTypes";
-import { Student } from "@/types/StudentTypes";
+import { Student } from "@/types/training/StudentTypes";
 import React, { useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons'

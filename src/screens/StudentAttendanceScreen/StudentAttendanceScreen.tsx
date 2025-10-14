@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ClassSessionScreen from "./ClassSessionScreen";
 import StudentAttendance from "./StudentAttendance";
 import { getAllClassSessions } from "@/services/training/classSessionsService";
-import { ClassSession } from "@/types/ClassSessionTypes";
+import { ClassSession } from "@/types/training/ClassSessionTypes";
 import { useNavigation } from "@react-navigation/native";
 import AntDesign from '@expo/vector-icons/AntDesign'
 import LoadingScreen from '@screens/LoadingScreen';
@@ -113,7 +113,7 @@ export default function StudentAttendanceScreen() {
         const fetchClassSessions = async () => {
             try {
                 setLoading(true);
-                const sessions = await getAllClassSessions({ isActive: true });
+                const sessions = await getAllClassSessions();
                 setListClassSessions(sessions);
             } catch (error) {
                 console.error('Error fetching class sessions:', error);
@@ -134,7 +134,7 @@ export default function StudentAttendanceScreen() {
 
             // ✅ Refresh cả class sessions và trial attendance
             const [sessions] = await Promise.all([
-                getAllClassSessions({ isActive: true }),
+                getAllClassSessions(),
             ]);
 
             setListClassSessions(sessions);

@@ -10,10 +10,9 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
-    GraduationCap, BellElectric, AlarmClockCheck,
-    UserRoundPlus, Users, Settings, Calendar, Zap,
-    Trophy, Clock, Target, BarChart3, MoreHorizontal,
-    BookOpen, UserCheck, CalendarDays, Building, Sparkles
+    BellElectric, AlarmClockCheck,
+    UserRoundPlus, UserRoundPen,
+    Trophy, UserCheck, Building, Sparkles
 } from 'lucide-react-native';
 import FeaturesGroup from './FeaturesGroup';
 import Divider from '@/components/layout/Divider';
@@ -32,6 +31,7 @@ const iconMap: { [key: string]: any } = {
     UserRoundPlus: UserRoundPlus,
     Building: Building,
     Sparkles: Sparkles,
+    UserRoundPen: UserRoundPen
 };
 
 /**

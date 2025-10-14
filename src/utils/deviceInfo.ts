@@ -1,12 +1,12 @@
-import DeviceInfo from 'react-native-device-info';
+// import DeviceInfo from 'react-native-device-info';
 
-type DeviceInfoType = {
-  brand: string;
-  model: string;
-  systemName: string;
-  systemVersion: string;
-  uniqueId: string;
-};
+// type DeviceInfoType = {
+//   brand: string;
+//   model: string;
+//   systemName: string;
+//   systemVersion: string;
+//   uniqueId: string;
+// };
 
 // export async function getDeviceInfo(): Promise<DeviceInfoType> {
 //   const brand = DeviceInfo.getBrand();

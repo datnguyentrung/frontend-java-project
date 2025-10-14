@@ -61,6 +61,7 @@ export const endpoints = {
     },
     registration: {
         list: `${API_PREFIX}/registration`,
-        detail: (id: string | number) => `${API_PREFIX}/registration/${id}`,
+        create: `${API_PREFIX}/registration`,
+        update: `${API_PREFIX}/registration/update`,
     }
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { blue, gray, green, purple, yellow, red } from '@styles/colorTypes';
 import { RegistrationDTO } from '@/types/RegistrationTypes';
 import taekwondo from '@assets/taekwondo.jpg';
@@ -12,39 +12,50 @@ type Props = {
     setVisible: (visible: boolean) => void;
     setSelectedItem: (item: RegistrationDTO | null) => void;
     isAttendance: boolean;
+    setVisibleForm?: (visible: boolean) => void;
 }
 
 const Register = [
-    { label: 'Ghi danh', color: green[500], key: 'ENROLL', backGroundColor: green[50], textColor: green[700] },
+    { label: 'Ghi danh', color: green[500], key: 'ENROLLED', backGroundColor: green[50], textColor: green[700] },
     { label: 'Học thử', color: blue[500], key: 'TRIAL', backGroundColor: blue[50], textColor: blue[700] },
     { label: 'Đã đăng ký', color: yellow[500], key: 'REGISTERED', backGroundColor: yellow[50], textColor: yellow[700] },
-    { label: 'Đã kết thúc', color: gray[500], key: 'ENDED', backGroundColor: gray[50], textColor: gray[700] },
+    { label: 'Đã kết thúc', color: gray[500], key: 'COMPLETED', backGroundColor: gray[50], textColor: gray[700] },
 ]
 
-export default function EnrollmentItemScreen({ item, setVisible, setSelectedItem, isAttendance }: Props) {
+export default function EnrollmentItemScreen({ item, setVisible, setSelectedItem, isAttendance, setVisibleForm }: Props) {
     const handlePress = () => {
         setSelectedItem(item);
         setVisible(true);
+    }
+
+    const handleOnLongPress = () => {
+        setVisibleForm && setVisibleForm(true);
+        setSelectedItem(item);
     }
 
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Pressable style={({ pressed }) => [
+                    styles.headerCard,
+                    pressed && styles.cardPressed, // thêm hiệu ứng khi nhấn giữ
+                ]}
+                    onLongPress={() => handleOnLongPress()} // Hiển thị tên khi nhấn giữ
+                >
                     <Image source={taekwondo} style={styles.image} />
                     <View style={styles.headerInfo}>
                         <Text style={styles.name}>{item.personalInfo.name}</Text>
                         {/* <Text style={styles.id}>{item.idRegistration}</Text> */}
                     </View>
-                </View>
+                </Pressable>
                 <View style={{
                     flexDirection: 'row', alignItems: 'center',
                     backgroundColor: Register.find(i => i.key === item.registrationInfo.registrationStatus)?.backGroundColor,
                     borderColor: Register.find(i => i.key === item.registrationInfo.registrationStatus)?.color,
                     borderWidth: 1,
-                    paddingHorizontal: 10,
-                    paddingVertical: 5,
+                    paddingHorizontal: 5,
+                    paddingVertical: 3,
                     borderRadius: 15,
                 }}>
                     {/* Dấu chấm tròn */}
@@ -61,6 +72,7 @@ export default function EnrollmentItemScreen({ item, setVisible, setSelectedItem
                         color: Register.find(i => i.key === item.registrationInfo.registrationStatus)?.textColor,
                         fontWeight: 'bold',
                         marginRight: 5,
+                        fontSize: 12,
                     }}>
                         {Register.find(i => i.key === item.registrationInfo.registrationStatus)?.label}
                     </Text>
@@ -148,11 +160,28 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         elevation: 2,
     },
+    headerCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 8,
+        marginVertical: 6,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        elevation: 3, // Android shadow
+        shadowColor: '#fd7070ff', // iOS shadow
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+    },
+    cardPressed: {
+        backgroundColor: '#e5f1ffff', // nền đỏ nhạt khi nhấn giữ
+        transform: [{ scale: 0.97 }], // hiệu ứng thu nhỏ nhẹ
+    },
     header: {
         flexDirection: 'row',
         backgroundColor: gray[50],
-        paddingVertical: 15,
-        paddingHorizontal: 10,
+        paddingVertical: 5,
+        paddingHorizontal: 8,
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         justifyContent: 'space-between',

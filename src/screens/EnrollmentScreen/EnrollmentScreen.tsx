@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Dimensions, Text } from 'react-native';
 import { RegistrationDTO } from '@/types/RegistrationTypes';
 import { Attendance } from '@/types/AttendanceTypes';
 import { gray } from '@styles/colorTypes';
@@ -7,14 +7,21 @@ import { gray } from '@styles/colorTypes';
 import EnrollmentHeaderScreen from './EnrollmentHeaderScreen';
 import EnrollmentItemScreen from './EnrollmentItemScreen';
 import EnrollmentModalClassSessionScreen from './EnrollmentModalClassSessionScreen';
+import EnrollmentFormScreen from './EnrollmentFormScreen';
 
 import { getTodayTrialAttendance } from '@/services/attendance/trialAttendanceService';
-import { getAllRegistration } from '@/services/training/registrationService';
+import { getAllRegistration } from '@/services/registrationService';
+
+import Modal from 'react-native-modal';
+import AntDesign from '@expo/vector-icons/AntDesign';
+
+const { width } = Dimensions.get('window');
 
 export default function EnrollmentScreen() {
     const [data, setData] = React.useState<RegistrationDTO[]>([]);
     const [searchText, setSearchText] = React.useState('');
     const [visible, setVisible] = React.useState(false);
+    const [visibleForm, setVisibleForm] = React.useState(false);
     const [selectedItem, setSelectedItem] = React.useState<RegistrationDTO | null>(null);
     const [attendanceData, setAttendanceData] = React.useState<Attendance[]>([]); // State để lưu dữ liệu điểm danh
 
@@ -25,8 +32,6 @@ export default function EnrollmentScreen() {
 
         const loadTrialAttendanceData = async () => {
             try {
-                const today = new Date();
-
                 // Gọi song song cả 2 API
                 const [attendanceRecords, registrations] = await Promise.all([
                     getTodayTrialAttendance(),
@@ -79,10 +84,6 @@ export default function EnrollmentScreen() {
         registerCount: data.filter(item => item.registrationInfo.registrationStatus === 'REGISTERED').length,
     }), [data]);
 
-    // console.log('filteredData:', filteredData);
-
-    // console.log('attendanceData:', attendanceData);
-
     return (
         <View style={styles.container}>
             <FlatList
@@ -93,6 +94,7 @@ export default function EnrollmentScreen() {
                         setVisible={setVisible}
                         setSelectedItem={setSelectedItem}
                         isAttendance={attendanceData.some(att => att.idStudent === item.idRegistration)}
+                        setVisibleForm={setVisibleForm}
                     />
                 )}
                 ListHeaderComponent={<EnrollmentHeaderScreen
@@ -107,14 +109,57 @@ export default function EnrollmentScreen() {
                 onRefresh={onRefresh}
                 refreshing={refreshing}
             />
-            {/* <View> */}
+
+            <TouchableOpacity
+                style={styles.addRegistrationButton}
+                onPress={() => setVisibleForm(true)}
+            >
+                <AntDesign name="plus" size={30} color="white" />
+            </TouchableOpacity>
+
             <Modal
-                visible={visible}
-                transparent
-                animationType="slide"
-                onRequestClose={() => setVisible(false)}
-                style={{ flex: 1 }}  // Ensure modal takes full height
+                isVisible={visibleForm}               // kiểm soát hiển thị modal
+                animationIn="fadeIn"               // hiệu ứng hiện modal
+                animationOut="fadeOut"           // hiệu ứng ẩn modal
+                animationInTiming={100}               // thời gian animation hiện
+                animationOutTiming={100}              // thời gian animation ẩn
+                backdropTransitionInTiming={100}      // thời gian fade của nền khi hiện
+                backdropTransitionOutTiming={100}     // thời gian fade của nền khi ẩn
+                backdropOpacity={0.5}                 // độ mờ của nền
+                onBackdropPress={() => setVisibleForm(false)} // ✅ Sửa lỗi: dùng setVisibleForm
+                onSwipeComplete={() => setVisibleForm(false)} // ✅ Sửa lỗi: dùng setVisibleForm
+                // swipeDirection="down"                 // hướng swipe để đóng
+                useNativeDriver                        // dùng native driver cho animation mượt
+                useNativeDriverForBackdrop
                 statusBarTranslucent
+                coverScreen
+                style={styles.modalStyle}             // style cho modal
+            >
+                <EnrollmentFormScreen
+                    setVisibleForm={setVisibleForm}
+                    setRefreshing={setRefreshing}
+                    selectedItem={selectedItem}
+                    setSelectedItem={setSelectedItem}
+                />
+            </Modal>
+
+            <Modal
+                isVisible={visible}               // kiểm soát hiển thị modal
+                animationIn="fadeIn"               // hiệu ứng hiện modal
+                animationOut="fadeOut"           // hiệu ứng ẩn modal
+                animationInTiming={100}               // thời gian animation hiện
+                animationOutTiming={100}              // thời gian animation ẩn
+                backdropTransitionInTiming={100}      // thời gian fade của nền khi hiện
+                backdropTransitionOutTiming={100}     // thời gian fade của nền khi ẩn
+                backdropOpacity={0.5}                 // độ mờ của nền
+                onBackdropPress={() => setVisible(false)} // tắt modal khi nhấn nền
+                onSwipeComplete={() => setVisible(false)} // tắt modal khi swipe xuống
+                // swipeDirection="down"                 // hướng swipe để đóng
+                useNativeDriver                        // dùng native driver cho animation mượt
+                useNativeDriverForBackdrop
+                statusBarTranslucent
+                coverScreen
+                style={styles.modalStyle}             // style cho modal
             >
                 <EnrollmentModalClassSessionScreen
                     setVisible={setVisible}
@@ -134,5 +179,25 @@ const styles = StyleSheet.create({
     },
     listContent: {
         flexGrow: 1,
-    }
+    },
+    addRegistrationButton: {
+        width: width * 0.15,
+        height: width * 0.15,
+        borderRadius: (width * 0.15) / 2,
+        backgroundColor: '#ff5252',
+        justifyContent: 'center',
+        position: 'absolute',
+        bottom: 40,
+        right: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+    },
+    modalStyle: {
+        justifyContent: 'center',  // modal xuất hiện từ dưới lên
+        alignItems: 'center',
+        overflow: 'hidden',
+        margin: 0,                   // modal full width
+        padding: 20,
+    },
 });

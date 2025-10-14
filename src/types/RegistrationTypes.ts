@@ -1,4 +1,3 @@
-import { Registration } from './types';
 export interface PersonalInfo {
     name: string;
     birthDate: Date;
@@ -6,14 +5,16 @@ export interface PersonalInfo {
     referredBy: string;
 }
 
-export interface registrationInfo {
+export interface RegistrationInfo {
     idBranch: number;
-    registrationDate: Date;
-    registrationStatus: string; // REGISTERED, TRIAL, ENROLLED, COMPLETED
+    idClassSession: string[];
+    beltLevel: string;
+    registrationDate?: Date;
+    registrationStatus?: string; // REGISTERED, TRIAL, ENROLLED, COMPLETED
 }
 
 export interface RegistrationDTO {
     idRegistration: string;
     personalInfo: PersonalInfo;
-    registrationInfo: registrationInfo;
+    registrationInfo: RegistrationInfo;
 }

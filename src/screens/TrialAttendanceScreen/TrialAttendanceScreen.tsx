@@ -138,7 +138,7 @@ export default function TrialAttendanceScreen({ setVisible }: Props) {
 const styles = StyleSheet.create({
     modal: {
         width: '100%',
-        height: '100%',
+        height: '90%',
         backgroundColor: 'white',
         borderRadius: 16,
         shadowColor: '#000',

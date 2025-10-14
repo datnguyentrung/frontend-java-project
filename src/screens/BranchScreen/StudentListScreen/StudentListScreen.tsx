@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { getStudentByBranch, getAllStudents } from '@/services/training/studentsService';
 import taekwondo from '@assets/taekwondo.jpg';
 import SearchBar from '@/components/common/SearchBar';
-import { Student } from '@/types/StudentTypes';
+import { Student } from '@/types/training/StudentTypes';
 
 export default function StudentListScreen({ branch_id }: { branch_id: number | null }) {
     const [listStudent, setListStudent] = useState<Student[]>([]);
