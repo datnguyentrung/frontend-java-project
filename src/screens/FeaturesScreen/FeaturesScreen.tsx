@@ -1,14 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
     StyleSheet,
     ScrollView,
-    RefreshControl,
-    Alert,
     ActivityIndicator
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import {
     BellElectric, AlarmClockCheck,
     UserRoundPlus, UserRoundPen,
@@ -18,8 +15,8 @@ import FeaturesGroup from './FeaturesGroup';
 import Divider from '@/components/layout/Divider';
 import FeaturesHeaderScreen from '@/screens/FeaturesScreen/FeaturesHeaderScreen';
 import { Feature } from "@/types/FeatureTypes";
-import { useQuickAccess } from '@/store/useQuickAccess';
-import { getAllFeatures } from '@/services/featureService';
+import { useQuickAccess } from '@/store/quickAccess/useQuickAccess';
+import { useGroupedFeatures } from '@/store/features/useFeature';
 import { useAuth } from "@/providers/AuthProvider";
 
 // Icon mapping để chuyển đổi từ string sang component
@@ -37,71 +34,48 @@ const iconMap: { [key: string]: any } = {
 /**
  * FeaturesScreen - Màn hình tính năng
  * Hiển thị các tính năng dựa trên role của người dùng
+ * Sử dụng custom hook với caching để tối ưu performance
  */
 export default function FeaturesScreen() {
     const [change, setChange] = useState(false);
     const [canChange, setCanChange] = useState(false);
-    const [featuresData, setFeaturesData] = useState<Feature[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
     const { userInfo } = useAuth();
 
-    // Fake user role - có thể thay đổi thành "Coach" hoặc "Admin" để test
+    // Lấy user role hiện tại
     const currentUserRole = userInfo?.role;
 
-    // Function to fetch data
-    const fetchFeaturesData = useCallback(async (showLoading = true) => {
-        try {
-            if (showLoading) setLoading(true);
-            // console.log('🔄 Fetching features data...');
-            const data = await getAllFeatures();
-            // console.log('✅ Features data received:', data);
-            setFeaturesData(data);
-        } catch (error) {
-            console.error('❌ Error fetching features:', error);
-            Alert.alert('Lỗi', 'Không thể tải dữ liệu tính năng. Vui lòng thử lại.');
-            // Fallback to empty data if API fails
-            setFeaturesData([]);
-        } finally {
-            if (showLoading) setLoading(false);
-        }
-    }, []);
+    // Sử dụng custom hook để lấy features với caching
+    const {
+        data: featuresData,
+        groupedFeatures: rawGroupedFeatures,
+        isLoading: loading,
+        error
+    } = useGroupedFeatures(currentUserRole);
 
-    // useFocusEffect để load data khi screen được focus
-    useFocusEffect(
-        useCallback(() => {
-            fetchFeaturesData();
-        }, [fetchFeaturesData])
-    );
+    // Debug logging
+    React.useEffect(() => {
+        console.log('🎯 FeaturesScreen - Current user role:', currentUserRole);
+        console.log('📊 FeaturesScreen - Features data:', featuresData?.length || 0, 'items');
+        console.log('📦 FeaturesScreen - Grouped features:', Object.keys(rawGroupedFeatures || {}).length, 'groups');
+        console.log('⏳ FeaturesScreen - Loading:', loading);
+        if (error) console.log('❌ FeaturesScreen - Error:', error);
+    }, [currentUserRole, featuresData, rawGroupedFeatures, loading, error]);
 
-    // Handle pull to refresh
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        try {
-            await fetchFeaturesData(false);
-        } finally {
-            setRefreshing(false);
-        }
-    }, [fetchFeaturesData]);
+    // Xử lý icon mapping với useMemo để tối ưu performance
+    const groupedFeatures = React.useMemo(() => {
+        if (!rawGroupedFeatures) return {};
 
-    // Lọc features theo role của user hiện tại
-    const filteredFeatures = currentUserRole
-        ? (featuresData.filter(feature =>
-            feature.roles.includes(currentUserRole) && feature.enabled))
-        : [];
-
-    // Nhóm features theo group
-    const groupedFeatures = filteredFeatures.reduce((groups: { [key: string]: Feature[] }, feature) => {
-        const featureGroup = feature.featureGroup;
-        if (!groups[featureGroup]) {
-            groups[featureGroup] = [];
-        }
-        groups[featureGroup].push({
-            ...feature,
-            iconComponent: iconMap[feature.iconComponent] || null
+        const result: { [key: string]: Feature[] } = {};
+        Object.entries(rawGroupedFeatures).forEach(([groupName, features]) => {
+            // Type assertion để fix TypeScript error
+            const typedFeatures = features as Feature[];
+            result[groupName] = typedFeatures.map((feature: Feature) => ({
+                ...feature,
+                iconComponent: iconMap[feature.iconComponent] || null
+            }));
         });
-        return groups;
-    }, {});
+        return result;
+    }, [rawGroupedFeatures]);
 
     // console.log(groupedFeatures);
 
@@ -119,15 +93,23 @@ export default function FeaturesScreen() {
         quickAccessFeatures
     } = useQuickAccess();
 
+    // Error state
+    if (error) {
+        return (
+            <ScrollView style={styles.container}>
+                <FeaturesHeaderScreen canChange={canChange} setCanChange={setCanChange} />
+                <View style={[styles.featuresGroup, styles.loading]}>
+                    <Text style={styles.emptyText}>Có lỗi xảy ra khi tải dữ liệu</Text>
+                    <Text style={styles.emptySubText}>Vui lòng thử lại sau</Text>
+                </View>
+            </ScrollView>
+        );
+    }
+
     // Loading state
     if (loading) {
         return (
-            <ScrollView
-                style={styles.container}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            >
+            <ScrollView style={styles.container}>
                 <FeaturesHeaderScreen canChange={canChange} setCanChange={setCanChange} />
                 <View style={[styles.featuresGroup, styles.loading]}>
                     <ActivityIndicator size="large" color="#FF5252" />
@@ -138,36 +120,26 @@ export default function FeaturesScreen() {
     }
 
     // No data state
-    if (!loading && featuresData.length === 0) {
+    if (!loading && (!featuresData || featuresData.length === 0)) {
         return (
-            <ScrollView
-                style={styles.container}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            >
+            <ScrollView style={styles.container}>
                 <FeaturesHeaderScreen canChange={canChange} setCanChange={setCanChange} />
                 <View style={[styles.featuresGroup, styles.loading]}>
                     <Text style={styles.emptyText}>Không có dữ liệu features</Text>
-                    <Text style={styles.emptySubText}>Kéo xuống để làm mới</Text>
+                    <Text style={styles.emptySubText}>Vui lòng kiểm tra lại</Text>
                 </View>
             </ScrollView>
         );
     }
 
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
+        <ScrollView style={styles.container}>
             <FeaturesHeaderScreen canChange={canChange} setCanChange={setCanChange} />
             <ScrollView style={styles.featuresGroup}>
                 <FeaturesGroup
                     title="quickAccess"
                     features={
-                        quickAccessFeatures.map(feature => ({
+                        quickAccessFeatures.map((feature: Feature) => ({
                             ...feature,
                             iconComponent: iconMap[feature.iconComponent] || null
                         }))

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Feature } from '@/types/FeatureTypes';
-import { useDatabaseConnection } from '../providers';
+import { useDatabaseConnection } from '@/providers';
 import {
     insertQuickAccessFeature,
     deleteQuickAccessFeature,
@@ -8,7 +8,7 @@ import {
     isFeatureInQuickAccess,
     updateQuickAccessFeature,
     clearQuickAccess
-} from './quickAccessDb';
+} from '@/store/quickAccess/quickAccessDb';
 
 // Query keys để cache management
 const QUERY_KEYS = {

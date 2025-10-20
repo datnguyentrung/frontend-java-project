@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { gradients } from '@/styles/gradients';
 import { View, Text, FlatList, StyleSheet, Pressable, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
-import { useQuickAccess } from '@/store/useQuickAccess';
+import { useQuickAccess } from '@/store/quickAccess/useQuickAccess';
 import { fontStyles } from '@/utils/fonts';
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
