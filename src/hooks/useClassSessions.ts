@@ -4,12 +4,12 @@ import React from 'react';
 import { weekDays } from '@/styles/weekDays';
 
 // Global cache
-let classSessionsCache: { value: string; label: string; idBranch: number }[] | null = null;
+let classSessionsCache: { value: string; label: string; idBranch: number, isActive: boolean }[] | null = null;
 let isLoading = false;
 let listeners: Set<() => void> = new Set();
 
 export const useClassSessions = () => {
-    const [classSessions, setClassSessions] = React.useState<{ value: string; label: string; idBranch: number }[]>(
+    const [classSessions, setClassSessions] = React.useState<{ value: string; label: string; idBranch: number, isActive: boolean }[]>(
         classSessionsCache || []
     );
     const [loading, setLoading] = React.useState(false);
@@ -34,7 +34,8 @@ export const useClassSessions = () => {
                     const simplified = data.map(cs => ({
                         value: cs.idClassSession,
                         label: "Thứ " + weekDays.find(wd => wd.context === cs.weekday)?.key + " - Ca " + cs.idClassSession.substring(4, 5),
-                        idBranch: cs.idBranch
+                        idBranch: cs.idBranch,
+                        isActive: cs.isActive,
                     }));
 
                     classSessionsCache = simplified;

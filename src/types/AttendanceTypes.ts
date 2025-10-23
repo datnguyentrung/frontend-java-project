@@ -23,3 +23,4 @@ export interface MarkEvaluation {
     evaluationStatus: string; // "T", "TB", "Y"
     note?: string;
 }
+

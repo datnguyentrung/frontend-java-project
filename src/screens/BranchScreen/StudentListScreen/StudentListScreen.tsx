@@ -1,43 +1,29 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image } from 'react-native';
-import { useEffect, useState } from 'react';
-import { getStudentByBranch, getAllStudents } from '@/services/training/studentsService';
+import { useState, useMemo } from 'react';
 import taekwondo from '@assets/taekwondo.jpg';
 import SearchBar from '@/components/common/SearchBar';
 import { Student } from '@/types/training/StudentTypes';
+import { useStudents } from '@/hooks/useStudents';
 
 export default function StudentListScreen({ branch_id }: { branch_id: number | null }) {
-    const [listStudent, setListStudent] = useState<Student[]>([]);
     const [searchText, setSearchText] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchStudents = async () => {
-            if (!branch_id) {
-                const data = await getAllStudents();
-                setListStudent(data || []);
-                return;
-            }
+    // Sử dụng custom hook với global cache (giống useBranches)
+    const { students: allStudents, loading, totalStudents } = useStudents(branch_id);
 
-            setLoading(true);
-            setError(null);
+    // Filter students theo search text với useMemo
+    const listStudent = useMemo(() => {
+        if (!searchText.trim()) return allStudents;
 
-            try {
-                console.log('🔍 Fetching students for branch_id:', branch_id);
-                const data = await getStudentByBranch(branch_id);
-                // console.log('📊 Students data received:', data);
-                setListStudent(data || []);
-            } catch (err) {
-                console.error('❌ Error fetching students:', err);
-                setError('Không thể tải danh sách học viên');
-                setListStudent([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+        return allStudents.filter(student =>
+            student.personalInfo.name.toLowerCase().includes(searchText.toLowerCase()) ||
+            student.academicInfo.beltLevel.toLowerCase().includes(searchText.toLowerCase()) ||
+            student.personalInfo.idAccount.toString().includes(searchText)
+        );
+    }, [allStudents, searchText]);
 
-        fetchStudents();
-    }, [branch_id]);
+    // Error state (từ hook sẽ log error, không cần state riêng)
+    const error = null;
 
     const renderStudentItem = ({ item, index }: { item: Student; index: number }) => {
         const { academicInfo, personalInfo } = item;
@@ -119,21 +105,17 @@ export default function StudentListScreen({ branch_id }: { branch_id: number | n
             </View>
 
             <FlatList
-                data={listStudent
-                    .sort((a, b) => a.personalInfo.name.localeCompare(b.personalInfo.name))
-                    .filter(student =>
-                        student.personalInfo.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                        student.academicInfo.beltLevel.toLowerCase().includes(searchText.toLowerCase()) ||
-                        student.personalInfo.idAccount.toString().includes(searchText)
-                    )
-                }
+                data={listStudent.sort((a, b) => a.personalInfo.name.localeCompare(b.personalInfo.name))}
                 renderItem={renderStudentItem}
                 keyExtractor={(item) => `${item.personalInfo.idAccount}`}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Text style={styles.emptyText}>
-                            Không có học viên nào trong chi nhánh này
+                            {branch_id
+                                ? "Không có học viên nào trong chi nhánh này"
+                                : "Không có học viên nào"
+                            }
                         </Text>
                     </View>
                 }

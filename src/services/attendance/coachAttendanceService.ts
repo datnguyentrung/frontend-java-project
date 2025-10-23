@@ -1,6 +1,5 @@
 import axiosInstance from "@/api/axiosInstance";
 import { endpoints } from "@/api/endpoints";
-import { CoachAttendance } from "@/types/types";
 
 export const getCoachAttendanceByIdCoach = async (id: string | number) => {
     // Debug logging
@@ -37,3 +36,4 @@ export const getCoachAttendanceByYearAndMonth = async (id: string | number, year
         throw error;
     }
 };
+

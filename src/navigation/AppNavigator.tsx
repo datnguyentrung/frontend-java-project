@@ -14,6 +14,8 @@ import EnrollmentScreen from '@/screens/EnrollmentScreen/EnrollmentScreen';
 import CoachAttendanceScreen from '@/screens/CoachAttendanceScreen/CoachAttendanceScreen';
 import LeaveRequestScreen from '@/screens/LeaveRequestScreen/LeaveRequestScreen';
 import TrialAttendanceScreen from '@/screens/TrialAttendanceScreen/TrialAttendanceScreen';
+import PhotoCaptureScreen from '@/screens/ScanScreen/PhotoCaptureScreen';
+import ArcFaceAIScreen from '@/screens/ScanScreen/ArcFaceAIScreen';
 
 // Định nghĩa các params cho từng screen
 export type RootStackParamList = {
@@ -30,6 +32,14 @@ export type RootStackParamList = {
     CoachAttendanceScreen: undefined;
     LeaveRequestScreen: undefined;
     TrialAttendanceScreen: undefined;
+    PhotoCaptureScreen: {
+        onImageSelected?: (fileName: string, fileUri: string) => void;
+        returnScreen?: string;
+    };
+    ArcFaceAIScreen: {
+        onHandleArcFaceAI?: (idCoach: string, nameCoach: string) => void;
+        returnScreen?: string;
+    };
 };
 
 // Tạo Stack Navigator
@@ -163,6 +173,22 @@ const AppNavigator = () => {
                 options={{
                     title: 'Điểm danh tập thử',
                     headerBackTitle: 'Quay lại'
+                }}
+            />
+
+            <Stack.Screen
+                name="PhotoCaptureScreen"
+                component={PhotoCaptureScreen}
+                options={{
+                    headerShown: false, // Ẩn header vì đã có custom header
+                }}
+            />
+
+            <Stack.Screen
+                name="ArcFaceAIScreen"
+                component={ArcFaceAIScreen}
+                options={{
+                    headerShown: false, // Ẩn header vì đã có custom header
                 }}
             />
 

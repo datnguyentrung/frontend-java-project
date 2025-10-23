@@ -77,6 +77,7 @@ const TabNavigator = () => {
             })}
         >
             {/* Tab Home - Màn hình chính */}
+
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}

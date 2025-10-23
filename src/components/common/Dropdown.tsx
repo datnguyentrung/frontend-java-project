@@ -8,9 +8,10 @@ type Props = {
     setSelected: React.Dispatch<React.SetStateAction<any>> | ((value: any) => void);
     list: any[];
     placeholder?: string;
+    dropDownDirection?: "TOP" | "BOTTOM" | "AUTO";
 }
 
-export default function Dropdown({ open, setOpen, selected, setSelected, list, placeholder }: Props) {
+export default function Dropdown({ open, setOpen, selected, setSelected, list, placeholder, dropDownDirection }: Props) {
     return (
         <View style={[styles.dropdownWrapper, { zIndex: open ? 9999 : 1, elevation: open ? 9999 : 1 }]}>
             <DropDownPicker
@@ -28,7 +29,7 @@ export default function Dropdown({ open, setOpen, selected, setSelected, list, p
                 tickIconStyle={styles.tickIcon}
                 zIndex={9999}
                 zIndexInverse={1000}
-                dropDownDirection="TOP"
+                dropDownDirection={dropDownDirection || "TOP"}
                 listMode="SCROLLVIEW"
             />
         </View>

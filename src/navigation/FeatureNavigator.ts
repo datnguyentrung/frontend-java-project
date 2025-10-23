@@ -15,6 +15,8 @@ export const featureScreenMap: Record<string, string> = {
     "Ghi danh": "EnrollmentScreen",
     "Điểm danh tập thử": "TrialAttendanceScreen",
     "Chấm công": "CoachAttendanceScreen",
+    "Chụp ảnh": "PhotoCaptureScreen",
+    "ArcFace AI": "ArcFaceAIScreen",
 };
 
 // Hàm helper để lấy screen name từ feature title
