@@ -26,4 +26,5 @@ export interface StudentMarkEvaluation {
 
 export interface StudentAttendanceDetail extends AttendanceInfo {
     personalAcademicInfo: Student;
+    attendanceDate: Date;
 }

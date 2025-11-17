@@ -77,8 +77,6 @@ export default function StudentAttendance({ selectedClassSession, status, isChan
         }
     }, [isChangingStatus, listStudent.length, onStatusChangeComplete, status]);
 
-
-
     return (
         <View style={styles.container}>
             {loading ? <LoadingScreen />

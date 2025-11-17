@@ -99,6 +99,8 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
     const { userInfo } = useAuth();
     const role = userInfo?.role || '';
 
+    console.log("Rendering StatusIcons with attendanceRecord:", attendanceRecord);
+
     // Local state for optimistic updates
     const [localAttendanceStatus, setLocalAttendanceStatus] = React.useState<string | null>(null);
     const [localEvaluationStatus, setLocalEvaluationStatus] = React.useState<string | null>(null);
@@ -120,7 +122,7 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
             attendanceAccountKey: {
                 idAccount: attendanceRecord.idAccount,
                 idClassSession: attendanceRecord.idClassSession,
-                attendanceDate: attendanceRecord.attendance.attendanceDate,
+                attendanceDate: attendanceRecord.attendanceDate,
             },
             attendanceStatus: newStatus
         };
@@ -141,7 +143,7 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
             attendanceAccountKey: {
                 idAccount: attendanceRecord.idAccount,
                 idClassSession: attendanceRecord.idClassSession,
-                attendanceDate: attendanceRecord.attendance.attendanceDate,
+                attendanceDate: attendanceRecord.attendanceDate,
             },
             evaluationStatus: newStatus,
             notes: attendanceRecord.notes

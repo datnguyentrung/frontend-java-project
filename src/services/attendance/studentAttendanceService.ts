@@ -19,6 +19,7 @@ export const getStudentAttendanceByClassSession = async (classSessionId: string,
 };
 
 export const markAttendanceAPI = async (attendanceData: StudentMarkAttendance) => {
+    console.log("Marking Student Attendance with data:", attendanceData);
     try {
         const response = await axiosInstance.patch(endpoints.studentAttendance.attendance, attendanceData);
         return response.data.data;
