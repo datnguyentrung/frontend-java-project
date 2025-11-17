@@ -30,7 +30,7 @@ export const useQuickAccess = () => {
         queryKey: QUERY_KEYS.quickAccess,
         queryFn: async () => {
             const features = await getQuickAccessFeatures(db);
-            console.log('Loaded quick access features:', features.map(f => f.featureName));
+            // console.log('Loaded quick access features:', features.map(f => f.basicInfo.featureName));
             return features;
         },
         enabled: !!db, // Chỉ chạy khi db đã sẵn sàng

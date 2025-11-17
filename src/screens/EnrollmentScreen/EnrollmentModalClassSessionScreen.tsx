@@ -3,10 +3,13 @@ import { View, Text, StyleSheet, Dimensions, Pressable, TextInput } from 'react-
 import { gray, red } from '@styles/colorTypes';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { RegistrationDTO } from '@/types/RegistrationTypes';
-import { Attendance } from '@/types/AttendanceTypes';
 import { createTrialAttendance } from '@/services/attendance/trialAttendanceService';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DropDownPicker from "react-native-dropdown-picker";
+import {
+    AttendanceInfo,
+    AttendanceStatus,
+} from '@/types/attendance/AttendanceTypes';
 
 const { width } = Dimensions.get('window');
 
@@ -16,7 +19,7 @@ type Props = {
     setRefreshing: (visible: boolean) => void;
 }
 
-const attendanceData = [
+const attendanceData: { key: AttendanceStatus; label: string }[] = [
     { key: 'X', label: 'Có mặt' },
     { key: 'M', label: 'Muộn' },
 ]
@@ -48,15 +51,19 @@ const shiftSession = [
 ]
 
 export default function EnrollmentModalClassSessionScreen({ setVisible, selectedItem, setRefreshing }: Props) {
-    const [mark, setMark] = React.useState<Attendance>({
-        idStudent: selectedItem?.idRegistration || '',
-        idClassSession: '', // cần truyền từ props hoặc context
-        attendanceInfo: {
-            attendanceDate: new Date(),
+    const [mark, setMark] = React.useState<AttendanceInfo>({
+        idAccount: selectedItem?.idRegistration || '',
+        idClassSession: '',
+        attendance: {
+            attendanceTime: '',
             attendanceStatus: 'X',
-            evaluationStatus: '',
-            notes: '',
-        }
+            coach: null,
+        },
+        evaluation: {
+            evaluationStatus: null,
+            coach: null,
+        },
+        notes: '',
     });
     const [openWeekday, setOpenWeekday] = React.useState(false);
     const [valueWeekday, setValueWeekday] = React.useState<number | null>(
@@ -90,14 +97,16 @@ export default function EnrollmentModalClassSessionScreen({ setVisible, selected
             const selectedShift = shiftSession.find(item => `${item.session}_${item.shift}` === selectedShiftSession);
             if (selectedShift) {
                 const idClassSession = `${selectedShift.session}${valueBranch}${valueWeekday}${selectedShift.shift}`;
-                setMark({ ...mark, idClassSession });
+                setMark({ ...mark, idClassSession: idClassSession });
             }
         }
     }, [selectedShiftSession, valueBranch, valueWeekday]);
 
+    console.log("IdclassSession: ", mark.idClassSession);
+
     const handleEvaluationChange = (rating: 'Y' | 'TB' | 'T') => {
         setEvaluationStatus(rating);
-        setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, evaluationStatus: rating } });
+        setMark({ ...mark, evaluation: { ...mark.evaluation, evaluationStatus: rating } });
     };
 
     const renderStars = () => {
@@ -259,13 +268,13 @@ export default function EnrollmentModalClassSessionScreen({ setVisible, selected
                                 key={`attendance-${item.key}`}
                                 style={[
                                     styles.attendanceButton,
-                                    mark?.attendanceInfo?.attendanceStatus === item.key && styles.attendanceButtonSelected
+                                    mark?.attendance?.attendanceStatus === item.key && styles.attendanceButtonSelected
                                 ]}
-                                onPress={() => setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, attendanceStatus: item.key } })}
+                                onPress={() => setMark({ ...mark, attendance: { ...mark.attendance, attendanceStatus: item.key } })}
                             >
                                 <Text style={[
                                     styles.attendanceButtonText,
-                                    mark?.attendanceInfo?.attendanceStatus === item.key && styles.attendanceButtonTextSelected
+                                    mark?.attendance?.attendanceStatus === item.key && styles.attendanceButtonTextSelected
                                 ]}>
                                     {item.label}
                                 </Text>
@@ -301,8 +310,8 @@ export default function EnrollmentModalClassSessionScreen({ setVisible, selected
                         multiline
                         numberOfLines={4}
                         placeholder="Nhập ghi chú tại đây..."
-                        value={mark?.attendanceInfo.notes || ''}
-                        onChangeText={(text) => setMark({ ...mark, attendanceInfo: { ...mark.attendanceInfo, notes: text } })}
+                        value={mark?.notes || ''}
+                        onChangeText={(text) => setMark({ ...mark, notes: text })}
                     />
                 </View>
             </View>

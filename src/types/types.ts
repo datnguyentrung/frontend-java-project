@@ -1,4 +1,6 @@
 import { ReactNode } from 'react';
+import { StudentAttendanceDetail } from '@/types/attendance/StudentAttendanceTypes';
+import { UserInfo, User } from '@/types/Auth/UsersTypes';
 
 export interface BasicAttendance {
     idStudent: string;
@@ -24,20 +26,6 @@ export interface Mark {
     note?: string;
 }
 
-export interface UserInfo {
-    idUser?: string;
-    email?: string;
-    name?: string;
-    role?: string;
-}
-
-export interface User {
-    username: string;
-    password: string;
-    access_token?: string;
-    refresh_token?: string;
-    info?: UserInfo;
-}
 
 export interface AuthContextType {
     isAuthenticated: boolean;
@@ -107,7 +95,7 @@ export interface AchievementScore {
     score: number;
 }
 
-export interface Summary {
+export interface SummaryScore {
     conductScore: ConductScore;
     awarenessScore: AwarenessScore;
     bonusScore: BonusScore;
@@ -117,7 +105,7 @@ export interface Summary {
 export interface GOATPointsSummaryByYear {
     year: number;
     quarter: number;
-    summary: Summary;
+    summary: SummaryScore;
 }
 
 export interface ScoreDataType {
@@ -126,7 +114,7 @@ export interface ScoreDataType {
     conductScore?: ConductScore | null,
     quarter: number,
     year: number,
-    listAttendance: BasicAttendance[]
+    listAttendance: StudentAttendanceDetail[]
 }
 
 export interface Branch {
@@ -143,18 +131,13 @@ export interface ClassSessionAttendance {
     location: string;
     shift: number;
     classLevel: string;
-    branch: Branch;
+    branch?: Branch;
     weekday: number;
     active: boolean;
     session: string;
 }
 
-export interface CoachAttendance {
-    coachName: string;
-    datetime: Date;
-    classSession: ClassSessionAttendance;
-    imageFileName: string;
-}
+
 
 export interface Registration {
     idStudent: string;

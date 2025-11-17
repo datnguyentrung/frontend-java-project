@@ -2,7 +2,7 @@ import React from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import CoachAttendanceHeaderScreen from './CoachAttendanceHeaderScreen';
 import CoachAttendanceItemScreen from './CoachAttendanceItemScreen';
-import { CoachAttendance } from '@/types/types';
+import { CoachAttendanceRes } from '@/types/attendance/CoachAttendanceTypes';
 import { getCoachAttendanceByYearAndMonth } from '@/services/attendance/coachAttendanceService';
 import { useAuth } from '@/providers/AuthProvider';
 import { gray } from '@/styles/colorTypes';
@@ -10,7 +10,7 @@ import { gray } from '@/styles/colorTypes';
 export default function CoachAttendanceScreen() {
     const { userInfo } = useAuth();
 
-    const [attendanceData, setAttendanceData] = React.useState<CoachAttendance[]>([]); // Dữ liệu chấm công
+    const [attendanceData, setAttendanceData] = React.useState<CoachAttendanceRes[]>([]); // Dữ liệu chấm công
     const [refreshing, setRefreshing] = React.useState(false); // State cho pull to refresh
 
     const [selectedDate, setSelectedDate] = React.useState(new Date());
@@ -49,7 +49,7 @@ export default function CoachAttendanceScreen() {
                 count={attendanceData.length}
             />
             <FlatList
-                data={[...attendanceData].sort((a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime())} // Sắp xếp giảm dần theo ngày
+                data={[...attendanceData].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())} // Sắp xếp giảm dần theo ngày
                 renderItem={({ item }) => <CoachAttendanceItemScreen attendance={item} />}
                 keyExtractor={(item, index) => index.toString()}
                 refreshControl={

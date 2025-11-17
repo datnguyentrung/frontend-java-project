@@ -2,16 +2,17 @@ import React, { ComponentProps } from 'react';
 import { View, Text, StyleSheet, Alert, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { navigateToFeature } from '@/navigation/FeatureNavigator'
-import { ConductScore, AwarenessScore, BasicAttendance, ScoreDataType } from '@/types/types';
+import { ConductScore, AwarenessScore, ScoreDataType } from '@/types/types';
+import { StudentAttendanceDetail } from '@/types/attendance/StudentAttendanceTypes';
 import { useAuth } from '@providers/AuthProvider';
-import { getStudentsByYearAndQuarter } from '@/services/attendance/studentAttendanceService';
-import AntDesign from '@expo/vector-icons/AntDesign'
+import { getAttendancesByIdAccountAndQuarter } from '@/services/attendance/studentAttendanceService';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-type AntDesignIconName = ComponentProps<typeof AntDesign>['name'];
+type FontAwesomeIconName = ComponentProps<typeof FontAwesome>['name'];
 
 type Props = {
     title: string,
-    iconComponent: AntDesignIconName,
+    iconComponent: FontAwesomeIconName,
     selectedQuarter: number,
     selectedYear: number,
     conductScore: ConductScore | null,
@@ -28,13 +29,13 @@ export default function GOATPointsScoresReport({ title, iconComponent, selectedQ
             ((awarenessScore?.mediumScore ?? 0) * 5) +
             ((awarenessScore?.lowScore ?? 0) * 5) || 1);
 
-    const [listAttendance, setListAttendance] = React.useState<BasicAttendance[]>([]);
+    const [listAttendance, setListAttendance] = React.useState<StudentAttendanceDetail[]>([]);
 
     React.useEffect(() => {
         const fetchAttendance = async () => {
-            if (userInfo?.idUser) {
+            if (userInfo?.idAccount) {
                 try {
-                    const data = await getStudentsByYearAndQuarter(userInfo.idUser, selectedYear, selectedQuarter);
+                    const data = await getAttendancesByIdAccountAndQuarter(userInfo.idAccount, selectedYear, selectedQuarter);
                     setListAttendance(data);
                     // console.log("Attendance data:", data);
                 } catch (error) {
@@ -85,7 +86,7 @@ export default function GOATPointsScoresReport({ title, iconComponent, selectedQ
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
                     <View style={[styles.iconContainer, { backgroundColor: title === "Điểm Rèn Luyện" ? "#ffe5e5" : "#fee5ffb2" }]}>
-                        <AntDesign name={iconComponent} size={24}
+                        <FontAwesome name={iconComponent} size={24}
                             color={title === "Điểm Rèn Luyện" ? "#e32a2aff" : "#f63cc1ff"}
                         />
                     </View>

@@ -29,13 +29,13 @@ export default function FeaturesGroup({
     // Chỉ log một lần khi features thay đổi
     useEffect(() => {
         if (isQuickAccess && features.length > 0) {
-            console.log('Quick Access Features:', features.map(f => f.idFeature));
+            console.log('Quick Access Features:', features.map(f => f.basicInfo.featureName));
         }
     }, [features, isQuickAccess]);
 
     const { addToQuickAccess, removeFromQuickAccess, checkIfInQuickAccess } = useQuickAccess();
 
-    // Load quick access items khi component mount
+    // Load quick access items khi component mount hoặc khi change thay đổi
     useEffect(() => {
         const loadQuickAccessItems = async () => {
             const quickAccessSet = new Set<number>();
@@ -51,7 +51,7 @@ export default function FeaturesGroup({
         if (features.length > 0) {
             loadQuickAccessItems();
         }
-    }, [features]); // Bỏ checkIfInQuickAccess khỏi dependency array
+    }, [features, change]); // Thêm change vào dependency để reload khi có thay đổi
 
     // Hàm xử lý khi nhấn button
     const handleButtonPress = (buttonName: string) => {
@@ -73,15 +73,30 @@ export default function FeaturesGroup({
     const handleChooseItem = async (item: any) => {
         try {
             if (isQuickAccess) {
-                await removeFromQuickAccess(item.idFeature);
-                setQuickAccessItems(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(item.idFeature);
-                    return newSet;
-                });
+                // Remove từ quick access
+                const success = await removeFromQuickAccess(item.idFeature);
+                if (success) {
+                    // Trigger re-render cho tất cả components
+                    setChange(!change);
+                }
             } else {
-                await addToQuickAccess(item);
-                setQuickAccessItems(prev => new Set(prev).add(item.idFeature));
+                // Tạo object clean chỉ chứa các thuộc tính cần thiết cho database
+                const cleanFeature = {
+                    idFeature: item.idFeature,
+                    basicInfo: {
+                        featureGroup: item.basicInfo.featureGroup,
+                        featureName: item.basicInfo.featureName,
+                        iconComponent: item.originalIconComponent || 'Sparkles',
+                        enabled: item.basicInfo.enabled,
+                        roles: item.basicInfo.roles
+                    }
+                };
+
+                const success = await addToQuickAccess(cleanFeature);
+                if (success) {
+                    // Trigger re-render cho tất cả components
+                    setChange(!change);
+                }
             }
         } catch (error) {
             console.error('Error handling quick access:', error);
@@ -96,6 +111,12 @@ export default function FeaturesGroup({
 
     const renderButtonChange = (item: any) => {
         if (canChange) {
+            // Nếu không phải Quick Access group và item đã có trong Quick Access thì ẩn nút
+            const itemIsInQuickAccess = quickAccessItems.has(item.idFeature);
+            if (!isQuickAccess && itemIsInQuickAccess) {
+                return null;
+            }
+
             return (
                 <Pressable onPress={() => handleChooseItem(item)}
                     style={[
@@ -114,14 +135,9 @@ export default function FeaturesGroup({
     };
 
     const renderContent = () => {
-        // Nếu không phải QuickAccess, filter ra những items đã có trong QuickAccess
-        const filteredFeatures = isQuickAccess
-            ? features
-            : features.filter(feature => !quickAccessItems.has(feature.idFeature));
-
         return (
             <FlatList
-                data={filteredFeatures}
+                data={features}
                 numColumns={4}   // 4 cột
                 scrollEnabled={false}
                 keyExtractor={(item, index) => index.toString()}
@@ -129,14 +145,14 @@ export default function FeaturesGroup({
                 renderItem={({ item }) => {
                     const IconComponent = item.iconComponent;
 
-                    // Sử dụng state thay vì async call
+                    // Sử dụng state thay vì async call - tính toán lại mỗi lần render
                     const isInQuickAccess = quickAccessItems.has(item.idFeature);
 
                     return (
                         <Pressable style={styles.box} >
                             <Pressable
                                 disabled={canChange}
-                                onPress={() => handleButtonPress(item.featureName)}
+                                onPress={() => handleButtonPress(item.basicInfo.featureName)}
                                 style={[
                                     styles.iconContainer,
                                     {
@@ -154,7 +170,7 @@ export default function FeaturesGroup({
                                     <Text style={{ fontSize: 30, color: "#bc0000ff" }}>?</Text>
                                 )}
                             </Pressable>
-                            {!(isInQuickAccess && !isQuickAccess) && renderButtonChange(item)}
+                            {renderButtonChange(item)}
                             <Text style={[
                                 styles.title,
                                 fontStyles.caption,
@@ -164,7 +180,7 @@ export default function FeaturesGroup({
                                     letterSpacing: 1,
                                 }
                             ]}>
-                                {item.featureName}
+                                {item.basicInfo.featureName}
                             </Text>
                         </Pressable>
                     );

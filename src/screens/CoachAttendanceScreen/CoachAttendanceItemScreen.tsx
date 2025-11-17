@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { CoachAttendance } from '@/types/types';
+import { CoachAttendanceRes } from '@/types/attendance/CoachAttendanceTypes';
 import taekwondo from '@assets/taekwondo.jpg';
 import { formatDateDM, formatTimeHM } from '@/utils/format';
 import Feather from '@expo/vector-icons/Feather'
 
-export default function CoachAttendanceItemScreen({ attendance }: { attendance: CoachAttendance }) {
+export default function CoachAttendanceItemScreen({ attendance }: { attendance: CoachAttendanceRes }) {
+    const numberDay = new Date(attendance.createdAt).getDay();
+
     return (
         <View style={styles.container}>
             <View style={styles.info}>
@@ -13,14 +15,22 @@ export default function CoachAttendanceItemScreen({ attendance }: { attendance: 
                     <Image source={taekwondo} style={{ width: 50, height: 50, borderRadius: 25 }} />
                 </View>
                 <View style={{ gap: 3 }}>
-                    <Text style={{ fontWeight: 'bold' }}>{attendance.coachName}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, }}>
-                        <Feather name="clock" size={14} color="gray" />
-                        <Text style={{ color: 'gray' }}>{formatDateDM(attendance.datetime)} • {formatTimeHM(attendance.datetime)}</Text>
+                        <Feather name="clock" size={14} color="black" />
+                        <Text style={{ fontWeight: 'bold' }}>
+                            {formatDateDM(attendance.createdAt)} • {formatTimeHM(attendance.createdAt)}
+                        </Text>
+                    </View>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, }}>
+                        <Feather name="calendar" size={14} color="gray" />
+                        <Text style={{ color: 'gray' }}>
+                            {`${numberDay === 1 ? 'Chủ Nhật' : `Thứ ${numberDay}`} - Mã lớp ${attendance.classSession.idClassSession}`}
+                        </Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, }}>
                         <Feather name="map-pin" size={14} color="gray" />
-                        <Text style={{ color: 'gray' }}>{attendance.classSession.branch.title}</Text>
+                        <Text style={{ color: 'gray' }}>Cơ sở {attendance.classSession.idBranch}</Text>
                     </View>
                 </View>
             </View>

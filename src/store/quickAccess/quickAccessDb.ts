@@ -25,11 +25,11 @@ export async function insertQuickAccessFeature(db: SQLiteDatabase, feature: Feat
              VALUES (?, ?, ?, ?, ?, ?)`,
             [
                 feature.idFeature,
-                feature.featureGroup,
-                feature.featureName,
-                feature.iconComponent,
-                feature.enabled ? 1 : 0,
-                JSON.stringify(feature.roles)
+                feature.basicInfo.featureGroup,
+                feature.basicInfo.featureName,
+                feature.basicInfo.iconComponent,
+                feature.basicInfo.enabled ? 1 : 0,
+                JSON.stringify(feature.basicInfo.roles)
             ]
         );
         return true;
@@ -62,11 +62,13 @@ export async function getQuickAccessFeatures(db: SQLiteDatabase): Promise<Featur
 
         return result.map((row: any) => ({
             idFeature: row.idFeature,
-            featureGroup: row.featureGroup,
-            featureName: row.featureName,
-            iconComponent: row.iconComponent,
-            enabled: row.enabled === 1,
-            roles: JSON.parse(row.roles)
+            basicInfo: {
+                featureGroup: row.featureGroup,
+                featureName: row.featureName,
+                iconComponent: row.iconComponent,
+                enabled: row.enabled === 1,
+                roles: JSON.parse(row.roles)
+            }
         }));
     } catch (error) {
         console.error('Error getting quick access features:', error);
@@ -92,25 +94,25 @@ export async function updateQuickAccessFeature(db: SQLiteDatabase, idFeature: st
         const setClause = [];
         const values = [];
 
-        if (updates.featureGroup) {
+        if (updates.basicInfo?.featureGroup) {
             setClause.push('featureGroup = ?');
-            values.push(updates.featureGroup);
+            values.push(updates.basicInfo.featureGroup);
         }
-        if (updates.featureName) {
+        if (updates.basicInfo?.featureName) {
             setClause.push('featureName = ?');
-            values.push(updates.featureName);
+            values.push(updates.basicInfo.featureName);
         }
-        if (updates.iconComponent) {
+        if (updates.basicInfo?.iconComponent) {
             setClause.push('iconComponent = ?');
-            values.push(updates.iconComponent);
+            values.push(updates.basicInfo.iconComponent);
         }
-        if (updates.enabled !== undefined) {
+        if (updates.basicInfo?.enabled !== undefined) {
             setClause.push('enabled = ?');
-            values.push(updates.enabled ? 1 : 0);
+            values.push(updates.basicInfo.enabled ? 1 : 0);
         }
-        if (updates.roles) {
+        if (updates.basicInfo?.roles) {
             setClause.push('roles = ?');
-            values.push(JSON.stringify(updates.roles));
+            values.push(JSON.stringify(updates.basicInfo.roles));
         }
 
         if (setClause.length > 0) {

@@ -2,9 +2,9 @@ import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity } from '
 import React from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { gray, green, red, yellow } from '@styles/colorTypes';
-import { Attendance } from '@/types/AttendanceTypes';
 import TrialAttendanceItemScreen from './TrialAttendanceItemScreen';
 import { getTodayTrialAttendance } from '@/services/attendance/trialAttendanceService';
+import { TrialAttendanceDetail } from '@/types/attendance/TrialAttendanceTypes';
 
 type Props = {
     setVisible?: (visible: boolean) => void;
@@ -20,7 +20,7 @@ const evaluationCategories = [
 const { width } = Dimensions.get('window');
 
 export default function TrialAttendanceScreen({ setVisible }: Props) {
-    const [trialAttendance, setTrialAttendance] = React.useState<Attendance[]>([]);
+    const [trialAttendance, setTrialAttendance] = React.useState<TrialAttendanceDetail[]>([]);
 
     // ✅ Function để refresh trial attendance data
     const refreshTrialAttendance = React.useCallback(async () => {
@@ -62,25 +62,26 @@ export default function TrialAttendanceScreen({ setVisible }: Props) {
             if (category.key === 'All') {
                 return {
                     ...category,
-                    count: trialAttendance.filter(item => item.attendanceInfo.evaluationStatus !== '').length
+                    count: trialAttendance.filter(item => item.evaluation.evaluationStatus !== null).length
                 };
             } else {
                 return {
                     ...category,
-                    count: trialAttendance.filter(item => item.attendanceInfo.evaluationStatus === category.key).length
+                    count: trialAttendance.filter(item => item.evaluation.evaluationStatus === category.key).length
                 };
             }
         });
     }, [trialAttendance]);
 
     const handleEvaluationChange = (index: number, value: string) => {
+        type EvaluationStatus = "Y" | "T" | "TB";
         setTrialAttendance(prev => {
             const newData = [...prev];
             newData[index] = {
                 ...newData[index],
-                attendanceInfo: {
-                    ...newData[index].attendanceInfo,
-                    evaluationStatus: value
+                evaluation: {
+                    ...newData[index].evaluation,
+                    evaluationStatus: value as EvaluationStatus,
                 }
             };
             return newData;

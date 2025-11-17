@@ -19,6 +19,7 @@ import { useAuth } from '@providers/AuthProvider';
 import { loginAPI } from '@/services/auth/authService';
 import { useEffect } from 'react';
 import { getDeviceInfo } from '@utils/deviceInfo';
+import { User } from '@/types/Auth/UsersTypes';
 
 const { width, height } = Dimensions.get('window');
 
@@ -58,46 +59,82 @@ export default function SignInScreen() {
         setIsLoading(true);
 
         try {
-            // Call real API
+            // Gọi API
             const loginResult = await loginAPI({
                 idAccount: userId.trim(),
                 password: password.trim(),
-                idDevice: idDevice || '', // Ensure idDevice is a string
+                idDevice: idDevice || '',
             });
 
-            switch (loginResult?.statusCode || loginResult?.status) {
+            // --- Cải tiến 1: Xử lý trường hợp API trả về rỗng mà không báo lỗi ---
+            if (!loginResult) {
+                Alert.alert("Lỗi Mạng", "Không thể kết nối đến máy chủ. Vui lòng thử lại.");
+                return; // Dừng thực thi
+            }
+
+            // Lấy statusCode
+            const statusCode = loginResult.statusCode || loginResult.status;
+
+            switch (statusCode) {
                 case 200:
-                    // Prepare user data with tokens
-                    const userData = {
-                        username: userId.trim(),
-                        password: password.trim(),
-                        access_token: loginResult?.data.access_token,
-                        refresh_token: loginResult?.data.refresh_token,
-                        info: {
-                            idUser: loginResult?.data.user.idAccount,
-                            role: loginResult?.data.user.role,
-                        },
-                    };
+                    // --- Cải tiến 2: Kiểm tra dữ liệu tồn tại (FIX LỖI TYPESCRIPT) ---
+                    // Chỉ khi status là 200, ta mới kiểm tra xem data và user có thực sự tồn tại không
+                    const { data } = loginResult;
 
-                    await signIn(userData);
+                    if (data && data.user && data.access_token && data.refresh_token) {
+                        // Bây giờ TypeScript biết chắc chắn loginResult.data.user tồn tại
+                        // Bạn có thể gán mà không cần `?.`
+                        const startObj = new Date(data.user.startDate);
+                        data.user.startDate = startObj;
 
-                    Alert.alert(
-                        '🎉 Đăng nhập thành công!',
-                        `Chào mừng bạn đến với ứng dụng`
-                    );
+                        const userData: User = {
+                            username: userId.trim(),
+                            // !!! XEM CẢNH BÁO BẢO MẬT BÊN DƯỚI !!!
+                            password: password.trim(),
+                            access_token: data.access_token,
+                            refresh_token: data.refresh_token,
+                            // Bạn có thể gán thẳng data.user nếu cấu trúc nó khớp với `info`
+                            info: data.user,
+                        };
+
+                        // Đăng nhập
+                        await signIn(userData);
+
+                        Alert.alert(
+                            '🎉 Đăng nhập thành công!',
+                            `Chào mừng bạn đến với ứng dụng`
+                        );
+
+                    } else {
+                        // Xử lý trường hợp API trả về 200 nhưng thiếu dữ liệu
+                        Alert.alert(
+                            "🚨 Lỗi Dữ Liệu",
+                            "Phản hồi từ máy chủ không đầy đủ. Vui lòng thử lại."
+                        );
+                    }
                     break;
+
                 case 400:
                     Alert.alert("❌ Đăng nhập thất bại", "Sai mật khẩu rồi 😥\nThử lại nhé!");
                     break;
+
                 case 500:
                     Alert.alert("⚠️ Không tìm thấy tài khoản", "Vui lòng kiểm tra lại thông tin đăng nhập 🔍");
                     break;
+
                 default:
-                    Alert.alert("🚨 Lỗi không xác định", "Vui lòng thử lại sau.");
+                    // --- Cải tiến 3: Xử lý các mã lỗi khác ---
+                    const message = loginResult.message || "Lỗi không xác định";
+                    Alert.alert(`🚨 Lỗi ${statusCode}`, message);
                     break;
             }
-        } catch (error) {
-            Alert.alert('Lỗi', 'Đăng nhập thất bại. Vui lòng thử lại.');
+        } catch (error: any) { // Thêm kiểu 'any' để có thể truy cập .message
+            // --- Cải tiến 4: Báo lỗi từ khối catch rõ ràng hơn ---
+            console.error("Login API Error:", error); // Log lỗi ra console để debug
+            Alert.alert(
+                'Lỗi Kết Nối',
+                `Đăng nhập thất bại: ${error.message || 'Vui lòng thử lại.'}`
+            );
         } finally {
             setIsLoading(false);
         }

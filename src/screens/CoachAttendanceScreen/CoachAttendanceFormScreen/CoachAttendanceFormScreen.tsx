@@ -6,12 +6,13 @@ import { formatDateDMYHM } from '@/utils/format';
 import Dropdown from '@/components/common/Dropdown';
 import { useBranches } from '@/hooks/useBranches';
 import { useClassSessions } from '@/hooks/useClassSessions';
-import type { CreateRequest } from '@/types/attendance/CoachAttendance';
+import type { CreateRequest } from '@/types/attendance/CoachAttendanceTypes';
 import { navigateToFeature } from '@/navigation/FeatureNavigator';
 import { useNavigation } from '@react-navigation/native';
 import { uploadToBytescale } from '@/utils/uploadToBytescale';
 import { createBytescaleSignedUrl } from '@/services/upload/BytescaleUploadController';
 import CoachAttendanceDetailScreen from '../CoachAttendanceFormScreen/CoachAttendanceDetailScreen';
+import { createCoachAttendance } from '@/services/attendance/coachAttendanceService';
 
 const shiftOptions = [
     { label: 'Ca 1', value: '1' },
@@ -69,10 +70,11 @@ export default function CoachAttendanceFormScreen() {
         console.log('🗑️ Coach information cleared');
     }, []);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        console.log('idCoach: ', idCoach);
         // Validate ảnh đã được chọn
-        if (!selectedImage || !fileName || !idCoach) {
-            Alert.alert('Lỗi', 'Vui lòng chọn ảnh minh chứng trước khi điểm danh.');
+        if (!((selectedImage && fileName) || idCoach)) {
+            Alert.alert('Lỗi', 'Vui lòng chụp hoặc quét ảnh minh chứng trước khi điểm danh.');
             return;
         }
 
@@ -81,7 +83,7 @@ export default function CoachAttendanceFormScreen() {
 
         const requestData: CreateRequest = {
             idClassSession,
-            createdAt: new Date(),
+            createdAt: new Date(new Date().getTime()),
             ...(fileName && { fileName }),   // chỉ thêm nếu fileName tồn tại
             ...(idCoach && { idAccount: idCoach }), // chỉ thêm nếu idCoach tồn tại
         };
@@ -91,12 +93,25 @@ export default function CoachAttendanceFormScreen() {
             console.log('Buổi học không hoạt động:', idClassSession);
             return;
         } else {
-            // Có thể upload ảnh lên server tại đây
-            // await uploadToBytescale(selectedImage, signedUrl);
+            // // Có thể upload ảnh lên server tại đây
+            // if (selectedImage && fileName) {
+            //     // Upload image to server
+            //     const signedUrl = await createBytescaleSignedUrl({ folderName: 'coach_attendance', fileName });
+            //     await uploadToBytescale(selectedImage, signedUrl);
+            //     console.log('Image path:', selectedImage);
+            // }
 
-            Alert.alert('Thành công', `Điểm danh thành công cho buổi học với ảnh: ${fileName}`);
-            console.log('Điểm danh thành công cho buổi học:', requestData);
-            console.log('Image path:', selectedImage);
+            try {
+                await createCoachAttendance(requestData);
+                handleClearCoach();
+                Alert.alert('Thành công', `Điểm danh thành công !`);
+                console.log('Điểm danh thành công cho buổi học:', requestData);
+
+                navigateToFeature("Chấm công", navigation);
+            } catch (error) {
+                console.error('Error creating coach attendance:', error);
+                Alert.alert('Lỗi', 'Không thể tạo điểm danh cho HLV. Vui lòng thử lại.');
+            }
         }
     };
 

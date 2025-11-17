@@ -1,5 +1,6 @@
 import axiosInstance from "@/api/axiosInstance";
 import { endpoints } from "@/api/endpoints";
+import { CreateRequest } from "@/types/attendance/CoachAttendanceTypes";
 
 export const getCoachAttendanceByIdCoach = async (id: string | number) => {
     // Debug logging
@@ -37,3 +38,13 @@ export const getCoachAttendanceByYearAndMonth = async (id: string | number, year
     }
 };
 
+export const createCoachAttendance = async (request: CreateRequest) => {
+    console.log(request);
+    try {
+        const response = await axiosInstance.post(endpoints.coachAttendance.create, request);
+        return response.data.data;
+    } catch (error) {
+        console.error("Error creating coach attendance:", error);
+        throw error;
+    }
+};

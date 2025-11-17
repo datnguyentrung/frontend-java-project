@@ -30,6 +30,23 @@ export const formatTimeHM = (dateString: Date) => {
     return `${hours}:${minutes}`;
 }
 
+export const formatTimeStringHM = (timeString: string): string => {
+    // Ví dụ: timeString là "15:32:57.613"
+
+    // 1. Tìm vị trí dấu hai chấm thứ hai (trước giây)
+    const secondColonIndex = timeString.indexOf(':', timeString.indexOf(':') + 1);
+
+    // 2. Cắt chuỗi từ đầu đến vị trí đó
+    if (secondColonIndex !== -1) {
+        // Trả về chuỗi "15:32"
+        return timeString.substring(0, secondColonIndex);
+    }
+
+    // Trường hợp chuỗi không đúng định dạng (không có dấu hai chấm thứ hai)
+    // Hoặc bạn có thể xử lý bằng cách khác tùy ý. Ở đây, tôi trả về chuỗi gốc.
+    return timeString;
+};
+
 export const formatDateYMD = (dateString: Date) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');

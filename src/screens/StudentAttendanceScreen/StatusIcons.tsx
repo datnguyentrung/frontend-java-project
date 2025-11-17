@@ -3,10 +3,12 @@ import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/providers/AuthProvider';
 import { AntDesign, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { Attendance, MarkAttendance, MarkEvaluation } from '@/types/AttendanceTypes';
 import { markAttendanceAPI, markEvaluationAPI } from '@/services/attendance/studentAttendanceService';
 import { useMutation } from "@tanstack/react-query";
 import { parseAxiosError } from '@/utils/errorUtils';
+import {
+    StudentAttendanceDetail, StudentMarkAttendance, StudentMarkEvaluation,
+} from '@/types/attendance/StudentAttendanceTypes';
 
 const attendanceData = [
     {
@@ -88,7 +90,7 @@ const evaluationData = [
 
 type Props = {
     status: string;
-    attendanceRecord?: Attendance;
+    attendanceRecord?: StudentAttendanceDetail;
     isChangingStatus?: boolean;
     isUpdatable?: boolean;
 };
@@ -112,10 +114,14 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
             throw new Error("No attendance record found");
         }
 
-        console.log(`🔄 Marking attendance: ${attendanceRecord.idAttendance} -> ${newStatus}`);
+        console.log(`🔄 Marking attendance: ${attendanceRecord} -> ${newStatus}`);
 
-        const updatedRecord: MarkAttendance = {
-            idAttendance: attendanceRecord.idAttendance!,
+        const updatedRecord: StudentMarkAttendance = {
+            attendanceAccountKey: {
+                idAccount: attendanceRecord.idAccount,
+                idClassSession: attendanceRecord.idClassSession,
+                attendanceDate: attendanceRecord.attendance.attendanceDate,
+            },
             attendanceStatus: newStatus
         };
 
@@ -129,12 +135,16 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
             throw new Error("No attendance record found");
         }
 
-        console.log(`🔄 Marking evaluation: ${attendanceRecord.idAttendance} -> ${newStatus}`);
+        console.log(`🔄 Marking evaluation: ${attendanceRecord} -> ${newStatus}`);
 
-        const updatedRecord: MarkEvaluation = {
-            idAttendance: attendanceRecord.idAttendance!,
+        const updatedRecord: StudentMarkEvaluation = {
+            attendanceAccountKey: {
+                idAccount: attendanceRecord.idAccount,
+                idClassSession: attendanceRecord.idClassSession,
+                attendanceDate: attendanceRecord.attendance.attendanceDate,
+            },
             evaluationStatus: newStatus,
-            note: attendanceRecord.attendanceInfo.notes
+            notes: attendanceRecord.notes
         };
 
         const result = await markEvaluationAPI(updatedRecord);
@@ -192,7 +202,7 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
             <View style={styles.iconsContainer}>
                 {evaluationData.map((item) => {
                     // Use local state for immediate UI update, fallback to attendanceRecord
-                    const currentStatus = localEvaluationStatus || attendanceRecord?.attendanceInfo.evaluationStatus;
+                    const currentStatus = localEvaluationStatus || attendanceRecord?.evaluation.evaluationStatus;
                     const isActive = item.key === currentStatus;
                     return (
                         <Pressable
@@ -231,7 +241,7 @@ export default function StatusIcons({ status, attendanceRecord, isChangingStatus
             <View style={styles.iconsContainer}>
                 {filteredData.map((item) => {
                     // Use local state for immediate UI update, fallback to attendanceRecord
-                    const currentStatus = localAttendanceStatus || attendanceRecord?.attendanceInfo.attendanceStatus;
+                    const currentStatus = localAttendanceStatus || attendanceRecord?.attendance.attendanceStatus;
                     const isActive = item.key === currentStatus;
                     return (
                         <Pressable

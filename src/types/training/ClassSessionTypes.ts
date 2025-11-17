@@ -1,5 +1,4 @@
-export interface ClassSession {
-    idClassSession: string;
+export interface ClassSessionInfo {
     classLevel: string;
     location: string;
     shift: string;
@@ -7,4 +6,13 @@ export interface ClassSession {
     session: string;
     isActive: boolean;
     idBranch: number;
+}
+
+export interface ClassSession extends ClassSessionInfo {
+    idClassSession: string;
+}
+
+export interface ClassSessionDetails extends ClassSessionInfo {
+    value: string;
+    label: string;
 }

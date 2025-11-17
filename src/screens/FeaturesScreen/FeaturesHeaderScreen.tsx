@@ -2,7 +2,6 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import HeaderTitle from '@/components/layout/HeaderApp/HeaderTitle';
 import HeaderBackground from '@/components/layout/HeaderApp/HeaderBackground';
 import Constants from 'expo-constants';
-// import { Pencil } from 'lucide-react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { red_color } from '@/styles/gradients';

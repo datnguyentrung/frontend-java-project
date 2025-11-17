@@ -62,6 +62,7 @@
     "@types/react": "~19.1.10",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-preset-expo": "^54.0.1",
+    "baseline-browser-mapping": "^2.8.28",
     "react-native-worklets": "0.5.1",
     "typescript": "~5.9.2"
   },

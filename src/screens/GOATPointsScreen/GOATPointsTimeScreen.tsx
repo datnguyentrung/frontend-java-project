@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import { getStudentStartDate } from "@/services/training/studentsService";
-import { UserInfo } from '@/types/types';
+import { UserInfo } from '@/types/Auth/UsersTypes';
 import DropDownPicker from "react-native-dropdown-picker";
 
 type Props = {
@@ -26,13 +25,10 @@ export default function GOATPointsTimeScreen({ userInfo, selectedYear, setSelect
 
     useEffect(() => {
         const fetch = async () => {
-            if (userInfo?.idUser) {
+            if (userInfo?.startDate) {
                 try {
-                    const startDateStr = await getStudentStartDate(userInfo.idUser);
-                    const startDate = new Date(startDateStr);
-                    // console.log("Student Start Date :", startDate);
                     const years = [];
-                    for (let year = startDate.getFullYear(); year <= new Date().getFullYear(); year++) {
+                    for (let year = userInfo.startDate.getFullYear(); year <= new Date().getFullYear(); year++) {
                         years.push(year);
                     }
                     setListYear(years);
@@ -42,7 +38,7 @@ export default function GOATPointsTimeScreen({ userInfo, selectedYear, setSelect
             }
         }
         fetch();
-    }, [userInfo?.idUser]);
+    }, [userInfo?.startDate]);
 
     // console.log("List of Years:", listYear);
 

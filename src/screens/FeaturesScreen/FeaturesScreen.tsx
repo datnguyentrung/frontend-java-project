@@ -4,12 +4,14 @@ import {
     Text,
     StyleSheet,
     ScrollView,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity
 } from 'react-native';
 import {
     BellElectric, AlarmClockCheck,
     UserRoundPlus, UserRoundPen,
-    Trophy, UserCheck, Building, Sparkles
+    Trophy, UserCheck, Building, Sparkles,
+    RefreshCw, AlertTriangle
 } from 'lucide-react-native';
 import FeaturesGroup from './FeaturesGroup';
 import Divider from '@/components/layout/Divider';
@@ -39,6 +41,7 @@ const iconMap: { [key: string]: any } = {
 export default function FeaturesScreen() {
     const [change, setChange] = useState(false);
     const [canChange, setCanChange] = useState(false);
+    const [isRetrying, setIsRetrying] = useState(false);
     const { userInfo } = useAuth();
 
     // Lấy user role hiện tại
@@ -49,7 +52,8 @@ export default function FeaturesScreen() {
         data: featuresData,
         groupedFeatures: rawGroupedFeatures,
         isLoading: loading,
-        error
+        error,
+        refetch
     } = useGroupedFeatures(currentUserRole);
 
     // Debug logging
@@ -71,7 +75,8 @@ export default function FeaturesScreen() {
             const typedFeatures = features as Feature[];
             result[groupName] = typedFeatures.map((feature: Feature) => ({
                 ...feature,
-                iconComponent: iconMap[feature.iconComponent] || null
+                originalIconComponent: feature.basicInfo.iconComponent, // Lưu string gốc
+                iconComponent: iconMap[feature.basicInfo.iconComponent] || null // React component
             }));
         });
         return result;
@@ -93,14 +98,55 @@ export default function FeaturesScreen() {
         quickAccessFeatures
     } = useQuickAccess();
 
+    // Handle retry function
+    const handleRetry = async () => {
+        setIsRetrying(true);
+        try {
+            await refetch();
+        } catch (err) {
+            console.error('Retry failed:', err);
+        } finally {
+            setIsRetrying(false);
+        }
+    };
+
     // Error state
     if (error) {
         return (
             <ScrollView style={styles.container}>
                 <FeaturesHeaderScreen canChange={canChange} setCanChange={setCanChange} />
-                <View style={[styles.featuresGroup, styles.loading]}>
-                    <Text style={styles.emptyText}>Có lỗi xảy ra khi tải dữ liệu</Text>
-                    <Text style={styles.emptySubText}>Vui lòng thử lại sau</Text>
+                <View style={[styles.featuresGroup, styles.errorContainer]}>
+                    <View style={styles.errorIconContainer}>
+                        <AlertTriangle size={64} color="#FF5252" />
+                    </View>
+
+                    <Text style={styles.errorTitle}>Có lỗi xảy ra</Text>
+                    <Text style={styles.errorSubText}>
+                        Không thể tải dữ liệu tính năng. Vui lòng kiểm tra kết nối mạng và thử lại.
+                    </Text>
+
+                    <TouchableOpacity
+                        style={[styles.retryButton, isRetrying && styles.retryButtonDisabled]}
+                        onPress={handleRetry}
+                        disabled={isRetrying}
+                        activeOpacity={0.8}
+                    >
+                        {isRetrying ? (
+                            <>
+                                <ActivityIndicator size="small" color="#FFFFFF" style={{ marginRight: 8 }} />
+                                <Text style={styles.retryButtonText}>Đang thử lại...</Text>
+                            </>
+                        ) : (
+                            <>
+                                <RefreshCw size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                                <Text style={styles.retryButtonText}>Thử lại</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+
+                    <Text style={styles.errorHelpText}>
+                        Nếu vấn đề vẫn tiếp tục, vui lòng liên hệ bộ phận hỗ trợ.
+                    </Text>
                 </View>
             </ScrollView>
         );
@@ -141,7 +187,7 @@ export default function FeaturesScreen() {
                     features={
                         quickAccessFeatures.map((feature: Feature) => ({
                             ...feature,
-                            iconComponent: iconMap[feature.iconComponent] || null
+                            iconComponent: iconMap[feature.basicInfo.iconComponent] || null
                         }))
                     }
                     change={change}
@@ -196,5 +242,74 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#999',
         textAlign: 'center',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 24,
+    },
+    errorIconContainer: {
+        marginBottom: 24,
+        padding: 16,
+        borderRadius: 50,
+        backgroundColor: '#FFF5F5',
+        borderWidth: 2,
+        borderColor: '#FFEBEE',
+    },
+    errorTitle: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#FF5252',
+        textAlign: 'center',
+        marginBottom: 12,
+        letterSpacing: -0.5,
+    },
+    errorSubText: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        lineHeight: 24,
+        marginBottom: 32,
+        paddingHorizontal: 8,
+    },
+    retryButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FF5252',
+        paddingHorizontal: 24,
+        paddingVertical: 14,
+        borderRadius: 12,
+        marginBottom: 20,
+        minWidth: 140,
+        shadowColor: '#FF5252',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    retryButtonDisabled: {
+        backgroundColor: '#FFB3BA',
+        shadowOpacity: 0.1,
+        elevation: 2,
+    },
+    retryButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+    },
+    errorHelpText: {
+        fontSize: 13,
+        color: '#999',
+        textAlign: 'center',
+        lineHeight: 18,
+        fontStyle: 'italic',
+        paddingHorizontal: 16,
     },
 });

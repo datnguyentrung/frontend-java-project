@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Dimensions, Text } from 'react-native';
 import { RegistrationDTO } from '@/types/RegistrationTypes';
-import { Attendance } from '@/types/AttendanceTypes';
 import { gray } from '@styles/colorTypes';
 
 import EnrollmentHeaderScreen from './EnrollmentHeaderScreen';

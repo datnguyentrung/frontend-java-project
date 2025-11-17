@@ -1,32 +1,32 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { getGOATPointsByIdStudentAndYear } from '@/services/summary';
+import { getScoresByQuarter } from '@/services/summary';
 import { useAuth } from '@providers/AuthProvider';
-import { GOATPointsSummaryByYear, ConductScore, AwarenessScore } from "@/types/types";
+import { ConductScore, AwarenessScore, SummaryScore } from "@/types/types";
 import GOATPointsTimeScreen from './GOATPointsTimeScreen';
 import LoadingScreen from '../LoadingScreen';
 import GOATPointsScoresReport from './GOATPointsScoresReport';
 import GOATPointsOverview from './GOATPointsOverview';
-import AntDesign from '@expo/vector-icons/AntDesign'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ComponentProps } from 'react'
 
-type AntDesignIconName = ComponentProps<typeof AntDesign>['name'];
+type FontAwesomeIconName = ComponentProps<typeof FontAwesome>['name'];
 
 type ReportItem = {
     title: string;
-    iconComponent: AntDesignIconName;  // ✅ type đúng
+    iconComponent: FontAwesomeIconName;  // ✅ type đúng
     label: string;
 }
 
 const data: ReportItem[] = [
     {
         title: "Điểm Rèn Luyện",
-        iconComponent: 'barschart' as AntDesignIconName,
+        iconComponent: 'bar-chart' as FontAwesomeIconName,
         label: 'awarenessScore'
     },
     {
         title: "Điểm Ý Thức",
-        iconComponent: 'hearto' as AntDesignIconName,
+        iconComponent: 'heart-o' as FontAwesomeIconName,
         label: 'consciousnessScore'
     }
 ]
@@ -37,17 +37,17 @@ export default function GOATPointsScreen() {
 
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [selectedQuarter, setSelectedQuarter] = useState<number>(new Date().getMonth() < 3 ? 1 : new Date().getMonth() < 6 ? 2 : new Date().getMonth() < 9 ? 3 : 4);
-    const [goatPoints, setGoatPoints] = useState<GOATPointsSummaryByYear[]>([]);
+    const [goatPoints, setGoatPoints] = useState<SummaryScore | null>(null);
 
     const [conductScore, setConductScore] = useState<ConductScore | null>(null);
     const [awarenessScore, setAwarenessScore] = useState<AwarenessScore | null>(null);
 
     useEffect(() => {
         const fetchGOATPoints = async () => {
-            if (userInfo?.idUser && selectedYear) {
+            if (userInfo?.idAccount && selectedYear) {
                 try {
                     setLoading(true);
-                    const data = await getGOATPointsByIdStudentAndYear(userInfo.idUser, selectedYear);
+                    const data = await getScoresByQuarter(selectedYear, selectedQuarter, userInfo.idAccount);
                     setGoatPoints(data);
                 } catch (error) {
                     console.error("Error fetching GOAT points:", error);
@@ -57,19 +57,12 @@ export default function GOATPointsScreen() {
             }
         }
         fetchGOATPoints();
-    }, [userInfo?.idUser, selectedYear]);
+    }, [userInfo?.idAccount, selectedYear, selectedQuarter]);
 
     useEffect(() => {
-        if (goatPoints && goatPoints.length > 0) {
-            const selectedQuarterData = goatPoints.find((point: GOATPointsSummaryByYear) => point.quarter === selectedQuarter);
-
-            if (selectedQuarterData && selectedQuarterData.summary) {
-                setConductScore(selectedQuarterData.summary.conductScore || null);
-                setAwarenessScore(selectedQuarterData.summary.awarenessScore || null);
-            } else {
-                setConductScore(null);
-                setAwarenessScore(null);
-            }
+        if (goatPoints) {
+            setConductScore(goatPoints.conductScore);
+            setAwarenessScore(goatPoints.awarenessScore);
         } else {
             setConductScore(null);
             setAwarenessScore(null);
@@ -77,7 +70,7 @@ export default function GOATPointsScreen() {
     }, [goatPoints, selectedQuarter]);
 
     const renderGOATPoints = () => {
-        if (!goatPoints || goatPoints.length === 0) {
+        if (!goatPoints) {
             return <Text style={{ textAlign: 'center', marginTop: 20 }}>Chưa có dữ liệu GOAT Points</Text>;
         }
         return (

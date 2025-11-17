@@ -143,9 +143,9 @@ export default function GOATPointsConductScreen({ scoreData }: { scoreData?: Sco
                 <Text style={styles.attendanceListTitle}>Danh sách buổi học</Text>
                 {scoreData?.listAttendance && scoreData.listAttendance.length > 0 ? (
                     scoreData.listAttendance
-                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                        // .sort((a, b) => new Date(b.attendanceInfo.attendance.attendanceTime).getTime() - new Date(a.attendanceInfo.attendanceDate).getTime())
                         .map((attendance, index) => {
-                            const attendanceData = initialConductData.find(item => item.value === attendance.attendance);
+                            const attendanceData = initialConductData.find(item => item.value === attendance.attendance.attendanceStatus);
                             return (
                                 <View key={index} style={styles.attendanceItem}>
                                     <View style={styles.attendanceInfo}>
@@ -154,13 +154,15 @@ export default function GOATPointsConductScreen({ scoreData }: { scoreData?: Sco
                                             size={24}
                                             color={attendanceData?.iconColor} />
                                         <View>
-                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(new Date(attendance.date))}</Text>
-                                            <Text style={{ color: '#666' }}>{attendance.attendanceTime} - {attendance.attendanceCoach}</Text>
+                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(new Date(attendance.attendance.attendanceDate))}</Text>
+                                            <Text style={{ color: '#666' }}>{attendance.attendance.attendanceTime} - {
+                                                attendance.attendance.coach?.coachName || ''
+                                            }</Text>
                                         </View>
                                     </View>
                                     <View style={styles.attendanceValue}>
                                         <Text style={[styles.attendanceText, { color: attendanceData?.titleColor, backgroundColor: attendanceData?.backgroundColor }]}>
-                                            {initialConductData.find(item => item.value === attendance.attendance)?.title || 'Chưa rõ'}
+                                            {initialConductData.find(item => item.value === attendance.attendance.attendanceStatus)?.title || 'Chưa rõ'}
                                         </Text>
                                     </View>
                                 </View>

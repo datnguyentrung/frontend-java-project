@@ -23,8 +23,10 @@ export default function BranchScreen() {
     useEffect(() => {
         const fetchBranches = async () => {
             const data = await getAllBranches();
-            setBranches(data);
-            setFilteredBranches(data);
+            // Sort ngay khi load data
+            const sortedData = data.sort((a: Branch, b: Branch) => a.idBranch - b.idBranch);
+            setBranches(sortedData);
+            setFilteredBranches(sortedData);
         };
 
         fetchBranches();
@@ -32,12 +34,15 @@ export default function BranchScreen() {
 
     useEffect(() => {
         if (searchText.trim() === '') {
-            setFilteredBranches(branches);
+            // Luôn sort cả khi không có search text
+            setFilteredBranches([...branches].sort((a: Branch, b: Branch) => a.idBranch - b.idBranch));
         } else {
-            const filtered = branches.filter(branch =>
-                branch.title.toLowerCase().includes(searchText.toLowerCase())
-                // ||branch.address.toLowerCase().includes(searchText.toLowerCase())
-            );
+            const filtered = branches
+                .filter(branch =>
+                    branch.title.toLowerCase().includes(searchText.toLowerCase())
+                    // ||branch.address.toLowerCase().includes(searchText.toLowerCase())
+                )
+                .sort((a: Branch, b: Branch) => a.idBranch - b.idBranch); // Sắp xếp theo idBranch tăng dần
             setFilteredBranches(filtered);
         }
     }, [searchText, branches]);

@@ -5,23 +5,23 @@ import {
 import React, { useState, useEffect, useRef } from 'react';
 import ClassSessionScreen from "./ClassSessionScreen";
 import StudentAttendance from "./StudentAttendance";
-import { getAllClassSessions } from "@/services/training/classSessionsService";
-import { ClassSession } from "@/types/training/ClassSessionTypes";
 import { useNavigation } from "@react-navigation/native";
 import AntDesign from '@expo/vector-icons/AntDesign'
 import LoadingScreen from '@screens/LoadingScreen';
 import TrialAttendanceScreen from '../TrialAttendanceScreen/TrialAttendanceScreen';
 import Modal from 'react-native-modal';
+import { useClassSessions } from '@/hooks/useClassSessions';
 
 export default function StudentAttendanceScreen() {
     const [selectedClassSession, setSelectedClassSession] = React.useState<string | null>(null);
-    const [listClassSessions, setListClassSessions] = React.useState<ClassSession[]>([]);
     const [status, setStatus] = useState<"attendance" | "evaluation">("attendance");
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isChangingStatus, setIsChangingStatus] = useState(false);
     const [visible, setVisible] = React.useState(false);
     const navigation = useNavigation();
+
+    const { classSessions, loading: classSessionsLoading } = useClassSessions();
 
     // Animation value for rotating sync icon
     const rotateValue = useRef(new Animated.Value(0)).current;
@@ -108,42 +108,22 @@ export default function StudentAttendanceScreen() {
         });
     }, [navigation, status, rotate, isChangingStatus]);
 
-    useEffect(() => {
-        // Fetch class sessions from an API or data source
-        const fetchClassSessions = async () => {
-            try {
-                setLoading(true);
-                const sessions = await getAllClassSessions();
-                setListClassSessions(sessions);
-            } catch (error) {
-                console.error('Error fetching class sessions:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchClassSessions();
-    }, []);
-
     // Pull to refresh function
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         try {
             setLoading(true);
+            setIsChangingStatus(true);
+            // Simulate data refresh
+            await new Promise(resolve => setTimeout(resolve, 1500));
             console.log('🔄 Refreshing class sessions...');
-
-            // ✅ Refresh cả class sessions và trial attendance
-            const [sessions] = await Promise.all([
-                getAllClassSessions(),
-            ]);
-
-            setListClassSessions(sessions);
 
         } catch (error) {
             console.error('❌ Error refreshing data:', error);
         } finally {
             setRefreshing(false);
             setLoading(false);
+            setIsChangingStatus(false);
         }
     }, []);
 
@@ -173,7 +153,7 @@ export default function StudentAttendanceScreen() {
                 <ClassSessionScreen
                     selectedClassSession={selectedClassSession}
                     setSelectedClassSession={setSelectedClassSession}
-                    listClassSessions={listClassSessions}
+                    listClassSessions={classSessions.filter(cs => cs.isActive)}
                 />
 
                 {/* Loading indicator when refreshing */}

@@ -1,49 +1,16 @@
 import axiosInstance from "@/api/axiosInstance";
 import { endpoints } from "@/api/endpoints";
 
-export interface RefreshTokenRequest {
-    refresh_token: string;
-}
-
-export interface RefreshTokenResponse {
-    success: boolean;
-    data?: {
-        access_token: string;
-        refresh_token: string;
-    };
-}
-
-export interface UserLogin {
-    idAccount: string;
-    password: string;
-    idDevice: string;
-}
-
-export interface UserInfo {
-    idAccount: string;
-    role: string;
-    status: string;
-}
-
-export interface LoginResponseData {
-    access_token: string;
-    refresh_token: string;
-    idDevice: string;
-    user: UserInfo;
-}
-
-export interface LoginAPIResponse {
-    data: LoginResponseData;
-    error: string | null;
-    message: string;
-    statusCode?: number;
-    status?: number;
-}
+import { UserLogin } from "@/types/Auth/UsersTypes";
+import { LoginAPIResponse, RefreshTokenResponse } from "@/types/Auth/AuthTypes";
 
 /**
  * API call for user login
  */
-export const loginAPI = async (credentials: UserLogin): Promise<LoginAPIResponse | undefined> => {
+export const loginAPI = async (credentials: UserLogin): Promise<
+    LoginAPIResponse |
+    // LoginResponseData |
+    undefined> => {
     try {
         const response = await axiosInstance.post(endpoints.auth.login, credentials);
         console.log("Login API Response:", response.data);

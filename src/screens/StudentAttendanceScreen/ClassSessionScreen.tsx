@@ -2,12 +2,12 @@ import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { ClassSession } from "@/types/training/ClassSessionTypes";
+import { ClassSessionDetails } from "@/types/training/ClassSessionTypes";
 
 type Props = {
     selectedClassSession: string | null,
     setSelectedClassSession: (session: string) => void,
-    listClassSessions: ClassSession[]
+    listClassSessions: ClassSessionDetails[]
 };
 
 const weekdays = [
@@ -21,7 +21,7 @@ const weekdays = [
 ]
 
 export default function ClassSessionScreen({ selectedClassSession, setSelectedClassSession, listClassSessions }: Props) {
-    const [filteredSessions, setFilteredSessions] = useState<ClassSession[]>([]);
+    const [filteredSessions, setFilteredSessions] = useState<ClassSessionDetails[]>([]);
     const [selectedWeekday, setSelectedWeekday] = React.useState<string | null>(
         new Date().getDay() === 0 ? 'SUNDAY' : weekdays[new Date().getDay()].context
     );
@@ -32,7 +32,7 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
         let filtered;
         if (selectedWeekday !== null) {
             filtered = listClassSessions
-                .filter(session => session.weekday === selectedWeekday)
+                .filter(session => session.weekday === selectedWeekday && session.isActive)
                 .sort((a, b) => a.idBranch - b.idBranch || a.shift.localeCompare(b.shift));
         } else {
             filtered = listClassSessions;
@@ -40,8 +40,14 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
 
         setFilteredSessions(filtered);
 
-        // dùng luôn biến filtered chứ không phải filteredSessions
-        setSelectedClassSession(filtered.length > 0 ? filtered[0].idClassSession : "");
+        // Chỉ auto-select khi:
+        // 1. Chưa có selection nào được chọn, HOẶC 
+        // 2. Selection hiện tại không tồn tại trong filtered sessions
+        const currentSessionExists = filtered.some(session => session.value === selectedClassSession);
+
+        if (!selectedClassSession || !currentSessionExists) {
+            setSelectedClassSession(filtered.length > 0 ? filtered[0].value : "");
+        }
     }, [selectedWeekday, listClassSessions]);
 
     return (
@@ -79,20 +85,20 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
                 <Text style={styles.sectionTitle}>Chọn lớp học</Text>
                 <View style={styles.classSessionContainer}>
                     {filteredSessions
-
+                        .sort((a, b) => a.shift.localeCompare(b.shift) || a.idBranch - b.idBranch)
                         .map((session) => (
                             <Pressable
-                                key={session.idClassSession}
+                                key={session.value}
                                 style={[
                                     styles.classSessionItem,
-                                    selectedClassSession === session.idClassSession && styles.activeClassSessionItem
+                                    selectedClassSession === session.value && styles.activeClassSessionItem
                                 ]}
                                 onPress={() => {
-                                    setSelectedClassSession(session.idClassSession);
+                                    setSelectedClassSession(session.value);
                                 }}
                             >
                                 <LinearGradient
-                                    colors={selectedClassSession === session.idClassSession
+                                    colors={selectedClassSession === session.value
                                         ? ['#ff5252', '#ff1744']
                                         : ['#ffffff', '#f5f5f5']
                                     }
@@ -102,11 +108,11 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
                                         <Ionicons
                                             name="business-outline"
                                             size={20}
-                                            color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
+                                            color={selectedClassSession === session.value ? '#fff' : '#666'}
                                         />
                                         <Text style={[
                                             styles.branchText,
-                                            selectedClassSession === session.idClassSession && styles.activeText
+                                            selectedClassSession === session.value && styles.activeText
                                         ]}>
                                             Cơ sở {session.idBranch}
                                         </Text>
@@ -116,11 +122,11 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
                                             <Ionicons
                                                 name="time-outline"
                                                 size={16}
-                                                color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
+                                                color={selectedClassSession === session.value ? '#fff' : '#666'}
                                             />
                                             <Text style={[
                                                 styles.sessionDetailText,
-                                                selectedClassSession === session.idClassSession && styles.activeText
+                                                selectedClassSession === session.value && styles.activeText
                                             ]}>
                                                 {session.session === 'am' ? 'Sáng' : 'Tối'} - Ca {session.shift.replace('SHIFT_', '')}
                                             </Text>
@@ -129,11 +135,11 @@ export default function ClassSessionScreen({ selectedClassSession, setSelectedCl
                                             <Ionicons
                                                 name="location-outline"
                                                 size={16}
-                                                color={selectedClassSession === session.idClassSession ? '#fff' : '#666'}
+                                                color={selectedClassSession === session.value ? '#fff' : '#666'}
                                             />
                                             <Text style={[
                                                 styles.sessionDetailText,
-                                                selectedClassSession === session.idClassSession && styles.activeText
+                                                selectedClassSession === session.value && styles.activeText
                                             ]}>
                                                 {session.location === 'INDOOR' ? 'Phòng tập' : 'Ngoài sân'}
                                             </Text>

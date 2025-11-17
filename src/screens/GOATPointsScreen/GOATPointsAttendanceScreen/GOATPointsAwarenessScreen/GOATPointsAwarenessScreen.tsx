@@ -153,8 +153,8 @@ export default function GOATPointsAwarenessScreen({ scoreData }: { scoreData?: S
             <View style={styles.evaluationList}>
                 <Text style={styles.evaluationListTitle}>Danh sách đánh giá</Text>
                 {scoreData?.listAttendance && scoreData.listAttendance
-                    .filter(item => item.attendance !== 'V' && item.attendance !== 'P')
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Sắp xếp theo ngày cũ nhất
+                    .filter(item => item.attendance.attendanceStatus !== 'V' && item.attendance.attendanceStatus !== 'P')
+                    .sort((a, b) => new Date(b.attendance.attendanceDate).getTime() - new Date(a.attendance.attendanceDate).getTime()) // Sắp xếp theo ngày cũ nhất
                     .map((item, index) => (
                         <View key={index} style={styles.listAttendanceItem}>
                             <View style={styles.attendanceItem}>
@@ -162,35 +162,37 @@ export default function GOATPointsAwarenessScreen({ scoreData }: { scoreData?: S
                                     <View style={styles.titleLabel}>
                                         <View style={{ justifyContent: 'flex-start', marginTop: 10 }}>
                                             <FontAwesome5
-                                                name={mockData.find(md => md.evaluation === item.evaluation)?.iconComponent}
-                                                size={18} color={mockData.find(md => md.evaluation === item.evaluation)?.itemColor}
+                                                name={mockData.find(md => md.evaluation === item.evaluation.evaluationStatus)?.iconComponent}
+                                                size={18} color={mockData.find(md => md.evaluation === item.evaluation.evaluationStatus)?.itemColor}
                                             />
                                         </View>
                                         <View>
-                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(new Date(item.date))}</Text>
-                                            <Text style={{ color: gray[500] }}>{item.evaluationCoach}</Text>
+                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(new Date(item.attendance.attendanceDate))}</Text>
+                                            <Text style={{ color: gray[500] }}>{
+                                                item.evaluation.evaluationCoach?.coachName || ''
+                                            }</Text>
                                         </View>
                                     </View>
                                     <View style={{ alignItems: 'flex-end' }}>
                                         <Text style={styles.evaluationScore}>
-                                            {item.evaluation === 'T' ? 5 : item.evaluation === 'TB' ? 3 : 0}đ
+                                            {item.evaluation.evaluationStatus === 'T' ? 5 : item.evaluation.evaluationStatus === 'TB' ? 3 : 0}đ
                                         </Text>
                                         <View style={[
                                             styles.evaluationValue,
-                                            { backgroundColor: mockData.find(md => md.evaluation === item.evaluation)?.progressbar }
+                                            { backgroundColor: mockData.find(md => md.evaluation === item.evaluation.evaluationStatus)?.progressbar }
                                         ]}>
                                             <Text style={{
                                                 fontSize: 15, fontWeight: '500',
-                                                color: mockData.find(md => md.evaluation === item.evaluation)?.titleColor
+                                                color: mockData.find(md => md.evaluation === item.evaluation.evaluationStatus)?.titleColor
                                             }}>
-                                                {mockData.find(md => md.evaluation === item.evaluation)?.value}
+                                                {mockData.find(md => md.evaluation === item.evaluation.evaluationStatus)?.value}
                                             </Text>
                                         </View>
                                     </View>
                                 </View>
 
                                 <View style={styles.noteContainer}>
-                                    <Text style={styles.noteText}>{item.note || "Không có ghi chú"}</Text>
+                                    <Text style={styles.noteText}>{item.notes || "Không có ghi chú"}</Text>
                                 </View>
                             </View>
                         </View>

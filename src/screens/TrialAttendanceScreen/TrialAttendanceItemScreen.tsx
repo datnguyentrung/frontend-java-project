@@ -3,11 +3,11 @@ import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { green, yellow, red, gray } from '@styles/colorTypes';
-import { Attendance } from '@/types/AttendanceTypes';
 import taekwondo from '@assets/taekwondo.jpg';
-import { formatTimeHM } from '@utils/format';
+import { formatTimeStringHM } from '@utils/format';
 import { markEvaluation } from '@/services/attendance/trialAttendanceService';
 import { useMutation } from "@tanstack/react-query";
+import { TrialAttendanceDetail } from '@/types/attendance/TrialAttendanceTypes';
 
 const { width } = Dimensions.get('window');
 
@@ -18,7 +18,7 @@ const evaluationCategories = [
 ];
 
 type Props = {
-    item: Attendance;
+    item: TrialAttendanceDetail;
     index: number;
     onEvaluationChange?: (index: number, value: string) => void;
     refreshTrialAttendance?: () => void;
@@ -29,7 +29,7 @@ export default function TrialAttendanceItemScreen({ item, index, onEvaluationCha
     const [localEvaluationStatus, setLocalEvaluationStatus] = React.useState<string | null>(null);
 
     // Sử dụng localEvaluationStatus (optimistic update) nếu có, nếu không thì dùng giá trị gốc
-    const currentValue = localEvaluationStatus ?? item.attendanceInfo.evaluationStatus ?? '';
+    const currentValue = localEvaluationStatus ?? item.evaluation.evaluationStatus ?? '';
 
     // Reset local state when attendanceRecord changes
     React.useEffect(() => {
@@ -40,12 +40,16 @@ export default function TrialAttendanceItemScreen({ item, index, onEvaluationCha
         mutationFn: async (newStatus: string) => {
             if (!item) return;
             await markEvaluation({
-                idAttendance: item.idAttendance!,
+                attendanceKey: {
+                    idRegistration: item.idAccount,
+                    idClassSession: item.idClassSession,
+                    attendanceDate: item.attendanceDate, // Ensure this is a Date object
+                },
                 evaluationStatus: newStatus,
             });
         },
         onMutate: async (variables) => {
-            const previousValue = localEvaluationStatus ?? item.attendanceInfo.evaluationStatus ?? '';
+            const previousValue = localEvaluationStatus ?? item.evaluation.evaluationStatus ?? '';
             setLocalEvaluationStatus(variables);
             return { previousValue };
         },
@@ -84,19 +88,19 @@ export default function TrialAttendanceItemScreen({ item, index, onEvaluationCha
                 <Image source={taekwondo} style={styles.image} />
                 <View>
                     <Text style={{ fontWeight: 'bold', fontSize: 14, marginBottom: 5 }}>
-                        {item.studentName}
+                        {item.registrationDTO.personalInfo.name}
                     </Text>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, gap: 5 }}>
                             <Feather name="map-pin" size={12} color="#ccc" />
-                            <Text style={{ color: '#666', fontSize: 12 }}>{item.idClassSession}</Text>
+                            <Text style={{ color: '#666', fontSize: 12 }}>Cơ sở {item.idClassSession[2]}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                             <Feather name="calendar" size={12} color="#ccc" />
                             <Text style={{ color: '#666', fontSize: 12 }}>
-                                {item.attendanceInfo.attendanceDate
-                                    ? formatTimeHM(item.attendanceInfo.attendanceDate).toString()
+                                {item.attendance.attendanceTime
+                                    ? formatTimeStringHM(item.attendance.attendanceTime)
                                     : "Chưa có giờ"}
                             </Text>
                         </View>

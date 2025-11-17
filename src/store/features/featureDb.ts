@@ -46,14 +46,14 @@ export async function insertFeature(db: SQLiteDatabase | null, feature: Feature)
              VALUES (?, ?, ?, ?, ?, ?)`,
             [
                 feature.idFeature,
-                feature.featureGroup,
-                feature.featureName,
-                feature.iconComponent,
-                feature.enabled ? 1 : 0, // Convert boolean to integer for SQLite
-                JSON.stringify(feature.roles)
+                feature.basicInfo.featureGroup,
+                feature.basicInfo.featureName,
+                feature.basicInfo.iconComponent,
+                feature.basicInfo.enabled ? 1 : 0, // Convert boolean to integer for SQLite
+                JSON.stringify(feature.basicInfo.roles)
             ]
         );
-        console.log('💾 Saved feature:', feature.featureName);
+        console.log('💾 Saved feature:', feature.basicInfo.featureName);
         return true;
     } catch (error) {
         console.error("Error inserting feature:", error);
@@ -71,25 +71,25 @@ export async function updateFeature(db: SQLiteDatabase | null, idFeature: string
         const setClause = [];
         const values = [];
 
-        if (updates.featureGroup !== undefined) {
+        if (updates.basicInfo?.featureGroup !== undefined) {
             setClause.push('featureGroup = ?');
-            values.push(updates.featureGroup);
+            values.push(updates.basicInfo.featureGroup);
         }
-        if (updates.featureName !== undefined) {
+        if (updates.basicInfo?.featureName !== undefined) {
             setClause.push('featureName = ?');
-            values.push(updates.featureName);
+            values.push(updates.basicInfo.featureName);
         }
-        if (updates.iconComponent !== undefined) {
+        if (updates.basicInfo?.iconComponent !== undefined) {
             setClause.push('iconComponent = ?');
-            values.push(updates.iconComponent);
+            values.push(updates.basicInfo.iconComponent);
         }
-        if (updates.enabled !== undefined) {
+        if (updates.basicInfo?.enabled !== undefined) {
             setClause.push('enabled = ?');
-            values.push(updates.enabled ? 1 : 0);
+            values.push(updates.basicInfo.enabled ? 1 : 0);
         }
-        if (updates.roles !== undefined) {
+        if (updates.basicInfo?.roles !== undefined) {
             setClause.push('roles = ?');
-            values.push(JSON.stringify(updates.roles));
+            values.push(JSON.stringify(updates.basicInfo.roles));
         }
 
         if (setClause.length === 0) {
@@ -137,11 +137,13 @@ export async function getAllFeaturesFromLocalStorage(db: SQLiteDatabase | null):
         const results = await db.getAllAsync(`SELECT * FROM feature;`);
         const features = results.map((result: any) => ({
             idFeature: result.idFeature as string,
-            featureGroup: result.featureGroup as string,
-            featureName: result.featureName as string,
-            iconComponent: result.iconComponent as string,
-            enabled: Boolean(result.enabled), // Convert from integer back to boolean
-            roles: JSON.parse(result.roles as string)
+            basicInfo: {
+                featureGroup: result.featureGroup as string,
+                featureName: result.featureName as string,
+                iconComponent: result.iconComponent as string,
+                enabled: Boolean(result.enabled), // Convert from integer back to boolean
+                roles: JSON.parse(result.roles as string)
+            }
         }));
 
         console.log('📦 Local storage returned', features.length, 'features');
@@ -168,11 +170,13 @@ export async function getFeatureByIdFeature(db: SQLiteDatabase | null, idFeature
         const row = result as any;
         return {
             idFeature: row.idFeature as string,
-            featureGroup: row.featureGroup as string,
-            featureName: row.featureName as string,
-            iconComponent: row.iconComponent as string,
-            enabled: Boolean(row.enabled), // Convert from integer back to boolean
-            roles: JSON.parse(row.roles as string)
+            basicInfo: {
+                featureGroup: row.featureGroup as string,
+                featureName: row.featureName as string,
+                iconComponent: row.iconComponent as string,
+                enabled: Boolean(row.enabled), // Convert from integer back to boolean
+                roles: JSON.parse(row.roles as string)
+            }
         };
     } catch (error) {
         console.error("Error getting feature detail:", error);
@@ -189,7 +193,7 @@ export async function getFeatureByRole(db: SQLiteDatabase | null, userRole: stri
     try {
         const allFeature = await getAllFeaturesFromLocalStorage(db);
         return allFeature.filter((feature: Feature) =>
-            feature.enabled && feature.roles.includes(userRole)
+            feature.basicInfo.enabled && feature.basicInfo.roles.includes(userRole)
         );
     } catch (error) {
         console.error("Error getting feature by role:", error);

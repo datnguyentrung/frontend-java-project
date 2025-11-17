@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { red } from '@styles/colorTypes'
-import { CoachAttendance } from '@/types/types';
 
 type Props = {
     selectedDate: Date,

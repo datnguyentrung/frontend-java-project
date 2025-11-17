@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContextType, AuthProviderProps, User } from '@/types/types'
+import { AuthContextType, AuthProviderProps } from '@/types/types'
+import { User } from '@/types/Auth/UsersTypes';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -21,7 +22,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             if (userData) {
                 const parsedUser = JSON.parse(userData);
-                if (parsedUser.user_id && parsedUser.user_password) {
+                if (parsedUser.username && parsedUser.password) {
                     setUser(parsedUser);
                     setAccessToken(tokenData);
                     setIsAuthenticated(true);

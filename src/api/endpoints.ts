@@ -16,6 +16,9 @@ export const endpoints = {
         quarterSummaryByIdStudentAndYear: (id: string | number, year: string | number) =>
             `${API_VERSION_1}/summary/students/${id}/goat-points/${year}/quarters`,
     },
+    scores: {
+        summaryByQuarter: `${API_VERSION_1}/scores/quarter-summary`,
+    },
     feature: {
         list: `${API_VERSION_1}/features`,
         detail: (id: string | number) => `${API_VERSION_1}/features/${id}`,
@@ -38,16 +41,16 @@ export const endpoints = {
     studentAttendance: {
         list: `${API_VERSION_1}/student-attendance`,
         detail: (id: string | number) => `${API_VERSION_1}/student-attendance/${id}`,
-        classSession: (id: string | number) => `${API_VERSION_1}/student-attendance/class-session/${id}`,
+        classSession: `${API_VERSION_1}/student-attendance/class-session`,
         attendance: `${API_VERSION_1}/student-attendance/attendance`,
         evaluation: `${API_VERSION_1}/student-attendance/evaluation`,
-        studentByYearAndQuarter: (id: string | number) =>
-            `${API_VERSION_1}/student-attendance/students/${id}`,
+        attendancesByIdAccountAndQuarter: `${API_VERSION_1}/student-attendance/quarter`,
     },
     coachAttendance: {
         list: `${API_VERSION_1}/coach-attendance`,
         detail: (id: string | number) => `${API_VERSION_1}/coach-attendance/${id}`,
-        byYearAndMonth: (id: string | number) => `${API_VERSION_1}/coach-attendance/${id}/year-month`
+        byYearAndMonth: (id: string | number) => `${API_VERSION_1}/coach-attendance/${id}/year-month`,
+        create: `${API_VERSION_1}/coach-attendance`,
     },
     trialAttendance: {
         list: `${API_VERSION_1}/trial-attendance`,

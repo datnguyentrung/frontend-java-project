@@ -86,7 +86,7 @@ export const useFeaturesByRole = (userRole: string) => {
                 console.log('✅ Found', localFeatures.length, 'features in local, filtering by role');
                 // Filter theo role và enabled status
                 return localFeatures.filter(feature =>
-                    feature.enabled && feature.roles.includes(userRole)
+                    feature.basicInfo.enabled && feature.basicInfo.roles.includes(userRole)
                 );
             }
 
@@ -103,7 +103,7 @@ export const useFeaturesByRole = (userRole: string) => {
             console.log('💾 Saved features to local storage');
             // Return filtered features
             return apiFeatures.filter((feature: Feature) =>
-                feature.enabled && feature.roles.includes(userRole)
+                feature.basicInfo.enabled && feature.basicInfo.roles.includes(userRole)
             );
         },
         enabled: !!db && !!userRole && isReady,
@@ -227,7 +227,7 @@ export const useCanAccessFeature = (idFeature: string, userRole: string) => {
 
     const canAccess = React.useMemo(() => {
         if (!feature) return false;
-        return feature.enabled && feature.roles.includes(userRole);
+        return feature.basicInfo.enabled && feature.basicInfo.roles.includes(userRole);
     }, [feature, userRole]);
 
     return {
@@ -247,7 +247,7 @@ export const useGroupedFeatures = (userRole?: string) => {
         if (!features) return {};
 
         return features.reduce((groups: { [key: string]: Feature[] }, feature: Feature) => {
-            const group = feature.featureGroup;
+            const group = feature.basicInfo.featureGroup;
             if (!groups[group]) {
                 groups[group] = [];
             }

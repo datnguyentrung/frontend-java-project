@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet } from "react-native";
-import { Attendance } from "@/types/AttendanceTypes";
 import { Student } from "@/types/training/StudentTypes";
 import React, { useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +7,7 @@ import { getStudentByClassSession } from "@/services/training/studentsService";
 import { getStudentAttendanceByClassSession } from "@/services/attendance/studentAttendanceService";
 import StatusIcons from "./StatusIcons";
 import LoadingScreen from '@screens/LoadingScreen';
+import { StudentAttendanceDetail } from "@/types/attendance/StudentAttendanceTypes";
 
 type Props = {
     selectedClassSession: string | null,
@@ -18,13 +18,9 @@ type Props = {
 
 export default function StudentAttendance({ selectedClassSession, status, isChangingStatus, onStatusChangeComplete }: Props) {
     const [listStudent, setListStudent] = React.useState<Student[]>([]);
-    const [listAttendance, setListAttendance] = React.useState<Attendance[]>([]);
+    const [listAttendance, setListAttendance] = React.useState<StudentAttendanceDetail[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [loadingRecord, setLoadingRecord] = React.useState(false);
-
-    // console.log('listAttendance: ', listAttendance);
-
-    // console.log('listStudent: ', listStudent);
 
     // 1. Lấy danh sách học sinh
     useEffect(() => {
@@ -81,6 +77,8 @@ export default function StudentAttendance({ selectedClassSession, status, isChan
         }
     }, [isChangingStatus, listStudent.length, onStatusChangeComplete, status]);
 
+
+
     return (
         <View style={styles.container}>
             {loading ? <LoadingScreen />
@@ -92,11 +90,12 @@ export default function StudentAttendance({ selectedClassSession, status, isChan
                     </View>
                 ) : (
                     listStudent.map((student: Student) => {
-                        const attendanceRecord: Attendance | undefined = listAttendance.find(record => record.idStudent === student.personalInfo.idAccount);
+                        const attendanceRecord: StudentAttendanceDetail | undefined = listAttendance
+                            .find(record => record.personalAcademicInfo.personalInfo.idAccount === student.personalInfo.idAccount);
                         const hasAttendanceRecord = !!attendanceRecord;
 
-                        const isUpdatableEvaluation = (attendanceRecord?.attendanceInfo.attendanceStatus === 'P'
-                            || attendanceRecord?.attendanceInfo.attendanceStatus === 'V')
+                        const isUpdatableEvaluation = (attendanceRecord?.attendance.attendanceStatus === 'P'
+                            || attendanceRecord?.attendance.attendanceStatus === 'V')
                             && status === 'evaluation';
 
                         const isUpdatable = !hasAttendanceRecord || isUpdatableEvaluation;
@@ -119,8 +118,8 @@ export default function StudentAttendance({ selectedClassSession, status, isChan
                                         </View>
                                     )}
 
-                                    {(attendanceRecord?.attendanceInfo.attendanceStatus === 'V' ||
-                                        attendanceRecord?.attendanceInfo.attendanceStatus === 'P'
+                                    {(attendanceRecord?.attendance.attendanceStatus === 'V' ||
+                                        attendanceRecord?.attendance.attendanceStatus === 'P'
                                     ) && status === 'evaluation' && (
                                             <View style={styles.noRecordOverlay}>
                                                 <View style={styles.noRecordBadge}>
@@ -265,7 +264,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     studentName: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
         color: '#333',
         marginBottom: 4,
