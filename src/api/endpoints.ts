@@ -68,7 +68,7 @@ export const endpoints = {
         update: `${API_VERSION_1}/registration/update`,
     },
     bytescaleUpload: {
-        signedUrl: `${API_VERSION_1}/bytescale-upload`,
+        authToken: `${API_VERSION_1}/bytescale-upload/auth-token`,
     },
     arcFace: {
         recognizeFaceBase64: `${API_VERSION_1}/arcface-ai/recognize/base64`,

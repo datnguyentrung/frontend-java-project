@@ -1,9 +1,13 @@
 import mime from "mime";
+import axiosInstance from "../api/axiosInstance";
+import { endpoints } from "../api/endpoints";
 
+const accountId = process.env.EXPO_PUBLIC_BYTESCALE_ACCOUNT_ID || '';
+const publicKey = process.env.EXPO_PUBLIC_BYTESCALE_PUBLIC_KEY || '';
 /**
  * Helper function to get MIME type from file URI
  */
-const getMimeType = (fileUri: string): string => {
+export const getMimeType = (fileUri: string): string => {
     try {
         // Extract file extension
         const extension = fileUri.split('.').pop()?.toLowerCase();
@@ -40,14 +44,49 @@ const getMimeType = (fileUri: string): string => {
  * Upload file response from Bytescale
  */
 interface BytescaleUploadResponse {
-    fileUrl: string;
+    fileUrl?: string;
+    url?: string; // Alternative field name
     accountId?: string;
     filePath?: string;
     fileId?: string;
     originalFileName?: string;
     size?: number;
     mime?: string;
+    [key: string]: any; // Allow other fields
 }
+
+/**
+ * Get Bytescale auth token from backend
+ * @param fileName - Name of the file to upload
+ * @param folderName - Folder name for organizing uploads
+ * @returns Promise with JWT token string
+ */
+export const getBytescaleAuthToken = async (
+    fileName: string,
+    folderName: string
+): Promise<string> => {
+    try {
+        console.log('🎫 Requesting auth token for:', { fileName, folderName });
+
+        const response = await axiosInstance.post(endpoints.bytescaleUpload.authToken, {
+            fileName,
+            folderName
+        });
+
+        // The backend returns a raw JWT string, not JSON
+        const authToken = response.data;
+
+        if (!authToken || typeof authToken !== 'string') {
+            throw new Error('Invalid auth token received from backend');
+        }
+
+        console.log('✅ Auth token received successfully');
+        return authToken;
+    } catch (error) {
+        console.error('❌ Failed to get auth token:', error);
+        throw new Error(`Failed to get upload authorization: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+};
 
 /**
  * Upload options for Bytescale
@@ -84,21 +123,34 @@ class UploadError extends Error {
 /**
  * Upload file to Bytescale with proper error handling and type safety
  * 
- * @param fileUri - Local file URI to upload
- * @param signedUrl - Pre-signed URL from Bytescale API
+ * @param fileUri - Local file URI to upload (from React Native image picker)
+ * @param mimeType - MIME type of the file
+ * @param fileName - Name of the file to upload
+ * @param authToken - JWT token from getBytescaleAuthToken function
  * @param options - Upload configuration options
  * @returns Promise with uploaded file URL
  */
 export const uploadToBytescale = async (
     fileUri: string,
-    signedUrl: string,
+    mimeType: string,
+    fileName: string,
+    authToken: string,
     options: UploadOptions = {}
 ): Promise<string> => {
-    const { timeout = 30000, retries = 3, onProgress, maxFileSizeMB = 10 } = options;
+    const { timeout = 30000, retries = 3, maxFileSizeMB = 10 } = options;
+
+    // Thêm log này để xem API key
+    console.log('Using Public Key:', publicKey ? 'Public key provided' : 'No Public key');
+    console.log('Account ID from env:', accountId);
+    console.log('Auth Token (JWT) received:', authToken ? 'Token provided' : 'No token');
 
     // Validate inputs
-    if (!fileUri || !signedUrl) {
-        throw new UploadError('Missing required parameters: fileUri and signedUrl');
+    if (!fileUri || !authToken) {
+        throw new UploadError('Missing required parameters: fileUri and authToken');
+    }
+
+    if (!accountId || !publicKey) { // Sửa: kiểm tra cả publicKey
+        throw new UploadError('EXPO_PUBLIC_BYTESCALE_ACCOUNT_ID hoặc EXPO_PUBLIC_BYTESCALE_PUBLIC_KEY env var is not set');
     }
 
     // Validate file before upload
@@ -107,32 +159,39 @@ export const uploadToBytescale = async (
         throw new UploadError(`File validation failed: ${validation.error}`);
     }
 
-    // Detect MIME type with fallback
-    const mimeType = getMimeType(fileUri);
-    console.log('📎 Uploading file:', fileUri, 'MIME:', mimeType);
+    // Use provided MIME type or detect from file URI
+    const finalMimeType = mimeType || getMimeType(fileUri);
+    console.log('📎 Uploading file:', fileUri, 'MIME:', finalMimeType, 'FileName:', fileName);
 
-    // Prepare file object for React Native
-    const file = {
-        uri: fileUri,
-        type: mimeType,
-        name: fileUri.split('/').pop() || 'upload', // Extract filename
-    } as any;
-
-    const formData = new FormData();
-    formData.append('file', file);
+    const uploadUrl = `https://api.bytescale.com/v2/accounts/${accountId}/uploads/form_data`;
 
     // Retry logic for better reliability
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
             console.log(`📤 Upload attempt ${attempt}/${retries}...`);
+            const uploadFormData = new FormData();
+
+            const file = {
+                uri: fileUri,
+                type: finalMimeType,
+                name: fileName
+            } as any;
+
+            // Thêm đối tượng 'file' này vào FormData
+            uploadFormData.append('file', file);
+
+            // Thêm 'authorization' (JWT) như cũ
+            uploadFormData.append('authorization', authToken);
 
             const response = await Promise.race([
-                fetch(signedUrl, {
+                fetch(uploadUrl, {
                     method: 'POST',
-                    body: formData,
+                    body: uploadFormData,
                     headers: {
-                        // Don't set Content-Type - let browser set it with boundary for FormData
-                        'Accept': 'application/json',
+                        // *** THAY ĐỔI QUAN TRỌNG ***
+                        // Header Authorization phải là PUBLIC API KEY
+                        'Authorization': `Bearer ${publicKey}`,
+                        // --------------------------
                     },
                 }),
                 new Promise<never>((_, reject) =>
@@ -140,24 +199,51 @@ export const uploadToBytescale = async (
                 )
             ]);
 
+            console.log('📡 Response status:', response.status);
+
+            // Lấy response text để debug nếu parse JSON lỗi
+            const responseText = await response.text();
+
             if (!response.ok) {
-                const errorText = await response.text().catch(() => 'Unknown error');
+                const errorText = responseText || 'Unknown error';
+                console.error('❌ Upload response error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorText,
+                    url: uploadUrl
+                });
                 throw new UploadError(
-                    `Upload failed: ${response.status} ${response.statusText}`,
+                    `Upload failed: ${response.status} ${response.statusText} - ${errorText}`,
                     response.status,
                     errorText
                 );
             }
 
-            const data: BytescaleUploadResponse = await response.json();
+            const data: BytescaleUploadResponse = JSON.parse(responseText);
 
-            if (!data.fileUrl) {
-                throw new UploadError('Invalid response: missing fileUrl');
+            // Log the full response to understand the structure
+            console.log('📋 Bytescale response data:', JSON.stringify(data, null, 2));
+
+            // 1. Kiểm tra xem mảng 'files' có tồn tại không
+            if (!data.files || !Array.isArray(data.files) || data.files.length === 0) {
+                console.error('❌ No "files" array found in response');
+                throw new UploadError('Invalid response: "files" array is missing or empty');
             }
 
-            console.log('✅ Upload successful:', data.fileUrl);
-            return data.fileUrl;
+            // 2. Tìm đối tượng 'file' thực sự trong mảng
+            const fileData = data.files.find(
+                (f: BytescaleUploadResponse) => f.formDataFieldName === 'file'
+            );
 
+            // 3. Kiểm tra xem file đó và 'fileUrl' có tồn tại không
+            if (!fileData || !fileData.fileUrl) {
+                console.error('❌ "fileUrl" not found for the "file" field in response');
+                throw new UploadError('Invalid response: "fileUrl" not found for the "file" field');
+            }
+
+            // 4. Trả về fileUrl chính xác
+            console.log('✅ Upload successful:', fileData.fileUrl);
+            return fileData.fileUrl;
         } catch (error) {
             const isLastAttempt = attempt === retries;
 
@@ -187,6 +273,37 @@ export const uploadToBytescale = async (
 
     // This should never be reached, but TypeScript requires it
     throw new UploadError('Upload failed unexpectedly');
+};
+
+/**
+ * Complete upload workflow: Get auth token and upload file
+ * @param fileUri - Local file URI to upload
+ * @param fileName - Name of the file to upload  
+ * @param folderName - Folder name for organizing uploads
+ * @param mimeType - Optional MIME type (will be detected if not provided)
+ * @param options - Upload configuration options
+ * @returns Promise with uploaded file URL
+ */
+export const uploadFileWithAuth = async (
+    fileUri: string,
+    fileName: string,
+    folderName: string,
+    mimeType?: string,
+    options: UploadOptions = {}
+): Promise<string> => {
+    try {
+        // Step 1: Get auth token from backend
+        const authToken = await getBytescaleAuthToken(fileName, folderName);
+
+        // Step 2: Upload file to Bytescale
+        const detectedMimeType = mimeType || getMimeType(fileUri);
+        const fileUrl = await uploadToBytescale(fileUri, detectedMimeType, fileName, authToken, options);
+
+        return fileUrl;
+    } catch (error) {
+        console.error('❌ Complete upload failed:', error);
+        throw error;
+    }
 };
 
 /**

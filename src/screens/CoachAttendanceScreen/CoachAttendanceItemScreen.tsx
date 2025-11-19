@@ -6,7 +6,7 @@ import { formatDateDM, formatTimeHM } from '@/utils/format';
 import Feather from '@expo/vector-icons/Feather'
 
 export default function CoachAttendanceItemScreen({ attendance }: { attendance: CoachAttendanceRes }) {
-    const numberDay = new Date(attendance.createdAt).getDay();
+    const numberDay = new Date(attendance.createdAt).getDay() + 1;
 
     return (
         <View style={styles.container}>

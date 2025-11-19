@@ -13,6 +13,7 @@ import { getAllRegistration } from '@/services/registrationService';
 
 import Modal from 'react-native-modal';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { TrialAttendanceDetail } from '@/types/attendance/TrialAttendanceTypes';
 
 const { width } = Dimensions.get('window');
 
@@ -22,7 +23,7 @@ export default function EnrollmentScreen() {
     const [visible, setVisible] = React.useState(false);
     const [visibleForm, setVisibleForm] = React.useState(false);
     const [selectedItem, setSelectedItem] = React.useState<RegistrationDTO | null>(null);
-    const [attendanceData, setAttendanceData] = React.useState<Attendance[]>([]); // State để lưu dữ liệu điểm danh
+    const [attendanceData, setAttendanceData] = React.useState<TrialAttendanceDetail[]>([]); // State để lưu dữ liệu điểm danh
 
     const [refreshing, setRefreshing] = React.useState(true);
 
@@ -92,7 +93,7 @@ export default function EnrollmentScreen() {
                         item={item}
                         setVisible={setVisible}
                         setSelectedItem={setSelectedItem}
-                        isAttendance={attendanceData.some(att => att.idStudent === item.idRegistration)}
+                        isAttendance={attendanceData.some(att => att.idAccount === item.idRegistration)}
                         setVisibleForm={setVisibleForm}
                     />
                 )}

@@ -2,17 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { formatDateDMYHM } from '@/utils/format';
+import CoachAttendanceDetailScreen from '../CoachAttendanceFormScreen/CoachAttendanceDetailScreen';
 import Dropdown from '@/components/common/Dropdown';
 import { useBranches } from '@/hooks/useBranches';
 import { useClassSessions } from '@/hooks/useClassSessions';
 import type { CreateRequest } from '@/types/attendance/CoachAttendanceTypes';
 import { navigateToFeature } from '@/navigation/FeatureNavigator';
 import { useNavigation } from '@react-navigation/native';
-import { uploadToBytescale } from '@/utils/uploadToBytescale';
-import { createBytescaleSignedUrl } from '@/services/upload/BytescaleUploadController';
-import CoachAttendanceDetailScreen from '../CoachAttendanceFormScreen/CoachAttendanceDetailScreen';
+import { getBytescaleAuthToken } from '@/services/upload/BytescaleUploadController';
 import { createCoachAttendance } from '@/services/attendance/coachAttendanceService';
+import { uploadFileWithAuth } from '@/utils/uploadToBytescale';
+import { formatDateDMYHM } from '@/utils/format';
 
 const shiftOptions = [
     { label: 'Ca 1', value: '1' },
@@ -93,13 +93,26 @@ export default function CoachAttendanceFormScreen() {
             console.log('Buổi học không hoạt động:', idClassSession);
             return;
         } else {
-            // // Có thể upload ảnh lên server tại đây
-            // if (selectedImage && fileName) {
-            //     // Upload image to server
-            //     const signedUrl = await createBytescaleSignedUrl({ folderName: 'coach_attendance', fileName });
-            //     await uploadToBytescale(selectedImage, signedUrl);
-            //     console.log('Image path:', selectedImage);
-            // }
+            // Upload ảnh lên server nếu có
+            if (selectedImage && fileName) {
+                try {
+                    console.log('📤 Starting file upload...');
+
+                    // Sử dụng hàm upload kết hợp (recommended)
+                    const fileUrl = await uploadFileWithAuth(
+                        selectedImage,        // fileUri
+                        fileName,            // fileName  
+                        'coach_attendance',  // folderName
+                        'image/jpeg'         // mimeType (optional, will be detected if not provided)
+                    );
+
+                    console.log('✅ Image uploaded successfully:', fileUrl);
+                } catch (error) {
+                    console.error('❌ Image upload failed:', error);
+                    Alert.alert('Lỗi', 'Upload ảnh thất bại. Vui lòng thử lại.');
+                    return;
+                }
+            }
 
             try {
                 await createCoachAttendance(requestData);

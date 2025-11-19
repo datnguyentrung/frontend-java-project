@@ -15,7 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { uploadToBytescale, getFileInfo } from '@/utils/uploadToBytescale';
+import { getFileInfo } from '@/utils/uploadToBytescale';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');

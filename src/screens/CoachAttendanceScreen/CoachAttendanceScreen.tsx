@@ -17,10 +17,10 @@ export default function CoachAttendanceScreen() {
 
     // Hàm lấy dữ liệu chấm công
     const fetchAttendanceData = async () => {
-        if (!userInfo || !userInfo?.idUser) return;
+        if (!userInfo || !userInfo?.idAccount) return;
         try {
             const data = await getCoachAttendanceByYearAndMonth(
-                userInfo.idUser!,
+                userInfo.idAccount!,
                 selectedDate.getFullYear(),
                 selectedDate.getMonth() + 1
             );
