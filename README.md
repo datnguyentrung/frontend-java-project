@@ -536,7 +536,7 @@ This project is proprietary software. All rights reserved.
 
 - **Developer**: Dat Nguyen Trung
 - **Expo Project**: [@datnguyentrung/taekwondo-app](https://expo.dev/@datnguyentrung/taekwondo-app)
-- **Package**: `com.datnguyentrung.frontendpythonproject`
+- **Package**: `com.datnguyentrung.frontendproject`
 
 ---
 
