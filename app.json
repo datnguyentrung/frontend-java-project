@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "frontend-python-project",
-    "slug": "frontend-python-project",
+    "name": "Taekwondo App",
+    "slug": "taekwondo-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/taekwondo.jpg",

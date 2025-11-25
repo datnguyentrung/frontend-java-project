@@ -32,9 +32,9 @@ export const loginAPI = async (credentials: UserLogin): Promise<
  */
 export const refreshTokenAPI = async (refreshToken: string): Promise<RefreshTokenResponse> => {
     try {
-        const response = await axiosInstance.post<RefreshTokenResponse>('/auth/refresh', {
+        const response = await axiosInstance.post<RefreshTokenResponse>('/auth/refresh',
             refreshToken,
-        });
+        );
         return response.data;
     } catch (error: any) {
         if (error.response?.data) {

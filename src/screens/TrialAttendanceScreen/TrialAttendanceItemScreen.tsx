@@ -4,7 +4,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { green, yellow, red, gray } from '@styles/colorTypes';
 import taekwondo from '@assets/taekwondo.jpg';
-import { formatTimeStringHM } from '@utils/format';
+import { formatDateDMY, formatTimeStringHM } from '@utils/format';
 import { markEvaluation } from '@/services/attendance/trialAttendanceService';
 import { useMutation } from "@tanstack/react-query";
 import { TrialAttendanceDetail } from '@/types/attendance/TrialAttendanceTypes';
@@ -22,9 +22,10 @@ type Props = {
     index: number;
     onEvaluationChange?: (index: number, value: string) => void;
     refreshTrialAttendance?: () => void;
+    isModal?: boolean | false;
 };
 
-export default function TrialAttendanceItemScreen({ item, index, onEvaluationChange, refreshTrialAttendance }: Props) {
+export default function TrialAttendanceItemScreen({ item, index, onEvaluationChange, refreshTrialAttendance, isModal }: Props) {
     const [isOpen, setIsOpen] = React.useState(false);
     const [localEvaluationStatus, setLocalEvaluationStatus] = React.useState<string | null>(null);
 
@@ -92,16 +93,20 @@ export default function TrialAttendanceItemScreen({ item, index, onEvaluationCha
                     </Text>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, gap: 5 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, gap: 3 }}>
                             <Feather name="map-pin" size={12} color="#ccc" />
-                            <Text style={{ color: '#666', fontSize: 12 }}>Cơ sở {item.idClassSession[2]}</Text>
+                            <Text style={{ color: '#666', fontSize: 11 }}>Cơ sở {item.idClassSession[2]}</Text>
                         </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
                             <Feather name="calendar" size={12} color="#ccc" />
-                            <Text style={{ color: '#666', fontSize: 12 }}>
+                            <Text style={{ color: '#666', fontSize: 11 }}>
                                 {item.attendance.attendanceTime
-                                    ? formatTimeStringHM(item.attendance.attendanceTime)
-                                    : "Chưa có giờ"}
+                                    ? (isModal
+                                        ? formatTimeStringHM(item.attendance.attendanceTime) // TRUE (Modal): Chỉ hiển thị giờ
+                                        : formatDateDMY(item.attendanceDate) + " " + formatTimeStringHM(item.attendance.attendanceTime) // FALSE (Không Modal): Hiển thị Ngày và Giờ
+                                    )
+                                    : "Chưa có giờ" // FALSE (Không có giờ): Hiển thị thông báo
+                                }
                             </Text>
                         </View>
                     </View>

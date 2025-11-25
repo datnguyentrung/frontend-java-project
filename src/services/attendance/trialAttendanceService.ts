@@ -26,6 +26,17 @@ export const getTrialAttendanceByDate = async (date: Date) => {
     }
 };
 
+export const getAllTrialAttendance = async () => {
+    try {
+        const response = await axiosInstance.get(endpoints.trialAttendance.list);
+        // console.log("All Trial Attendance Response:", response.data);
+        return response.data.data || [];
+    } catch (error) {
+        console.error("Error fetching all trial attendance:", error);
+        throw error;
+    }
+};
+
 export const getTodayTrialAttendance = async () => {
     try {
         const response = await axiosInstance.get(endpoints.trialAttendance.today);

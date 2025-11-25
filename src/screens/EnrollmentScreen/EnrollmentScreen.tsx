@@ -79,7 +79,7 @@ export default function EnrollmentScreen() {
 
     // Memoize counts để tránh re-calculate
     const counts = React.useMemo(() => ({
-        enrollCount: data.filter(item => item.registrationInfo.registrationStatus === 'ENROLL').length,
+        enrollCount: data.filter(item => item.registrationInfo.registrationStatus === 'ENROLLED').length,
         trialCount: data.filter(item => item.registrationInfo.registrationStatus === 'TRIAL').length,
         registerCount: data.filter(item => item.registrationInfo.registrationStatus === 'REGISTERED').length,
     }), [data]);

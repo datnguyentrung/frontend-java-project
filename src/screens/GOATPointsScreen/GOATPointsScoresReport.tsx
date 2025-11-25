@@ -37,7 +37,7 @@ export default function GOATPointsScoresReport({ title, iconComponent, selectedQ
                 try {
                     const data = await getAttendancesByIdAccountAndQuarter(userInfo.idAccount, selectedYear, selectedQuarter);
                     setListAttendance(data);
-                    // console.log("Attendance data:", data);
+                    console.log("Attendance data:", data);
                 } catch (error) {
                     console.error("Error fetching attendance data:", error);
                 }

@@ -154,7 +154,7 @@ export default function GOATPointsAwarenessScreen({ scoreData }: { scoreData?: S
                 <Text style={styles.evaluationListTitle}>Danh sách đánh giá</Text>
                 {scoreData?.listAttendance && scoreData.listAttendance
                     .filter(item => item.attendance.attendanceStatus !== 'V' && item.attendance.attendanceStatus !== 'P')
-                    .sort((a, b) => new Date(b.attendance.attendanceDate).getTime() - new Date(a.attendance.attendanceDate).getTime()) // Sắp xếp theo ngày cũ nhất
+                    .sort((a, b) => a.attendanceDate.getTime() - b.attendanceDate.getTime())    // Sắp xếp theo ngày cũ nhất
                     .map((item, index) => (
                         <View key={index} style={styles.listAttendanceItem}>
                             <View style={styles.attendanceItem}>
@@ -167,10 +167,10 @@ export default function GOATPointsAwarenessScreen({ scoreData }: { scoreData?: S
                                             />
                                         </View>
                                         <View>
-                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(new Date(item.attendance.attendanceDate))}</Text>
-                                            <Text style={{ color: gray[500] }}>{
-                                                item.evaluation.evaluationCoach?.coachName || ''
-                                            }</Text>
+                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(item.attendanceDate)}</Text>
+                                            <Text style={{ color: gray[500] }}>
+                                                {item.evaluation.coach?.coachName || ''}
+                                            </Text>
                                         </View>
                                     </View>
                                     <View style={{ alignItems: 'flex-end' }}>

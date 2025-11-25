@@ -1,7 +1,7 @@
 import { ClassSession } from "@/types/training/ClassSessionTypes";
 
 export interface CreateRequest {
-    createdAt: Date;
+    createdAt: Date | string;
     fileName?: string;
     idClassSession: string;
     idAccount?: string;

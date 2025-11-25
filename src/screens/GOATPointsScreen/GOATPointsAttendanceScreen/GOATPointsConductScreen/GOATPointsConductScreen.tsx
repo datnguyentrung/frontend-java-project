@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { ConductScore, ScoreDataType } from '@/types/types';
 import { red, blue, green, orange, purple, gray } from '@styles/colorTypes';
 import Feather from '@expo/vector-icons/Feather'
-import { formatDateDMY } from '@/utils/format';
+import { formatDateDMY, formatTimeStringHM } from '@/utils/format';
 
 type FeatherIconName = ComponentProps<typeof Feather>['name'];
 
@@ -74,6 +74,8 @@ const initialConductData: ConductProps[] = [
 export default function GOATPointsConductScreen({ scoreData }: { scoreData?: ScoreDataType }) {
     const [conductData, setConductData] = useState<ConductProps[]>(initialConductData);
 
+    console.log(scoreData?.listAttendance);
+
     useEffect(() => {
         const updatedData = initialConductData.map(item => ({
             ...item,
@@ -143,7 +145,7 @@ export default function GOATPointsConductScreen({ scoreData }: { scoreData?: Sco
                 <Text style={styles.attendanceListTitle}>Danh sách buổi học</Text>
                 {scoreData?.listAttendance && scoreData.listAttendance.length > 0 ? (
                     scoreData.listAttendance
-                        // .sort((a, b) => new Date(b.attendanceInfo.attendance.attendanceTime).getTime() - new Date(a.attendanceInfo.attendanceDate).getTime())
+                        .sort((a, b) => new Date(b.attendanceDate).getTime() - new Date(a.attendanceDate).getTime())
                         .map((attendance, index) => {
                             const attendanceData = initialConductData.find(item => item.value === attendance.attendance.attendanceStatus);
                             return (
@@ -154,10 +156,13 @@ export default function GOATPointsConductScreen({ scoreData }: { scoreData?: Sco
                                             size={24}
                                             color={attendanceData?.iconColor} />
                                         <View>
-                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(new Date(attendance.attendance.attendanceDate))}</Text>
-                                            <Text style={{ color: '#666' }}>{attendance.attendance.attendanceTime} - {
-                                                attendance.attendance.coach?.coachName || ''
-                                            }</Text>
+                                            <Text style={{ fontSize: 18 }}>{formatDateDMY(attendance.attendanceDate)}</Text>
+                                            {attendance.attendance.attendanceStatus !== 'V' && attendance.attendance.attendanceStatus !== 'P' && (
+                                                <Text style={{ color: '#666' }}>
+                                                    {formatTimeStringHM(attendance.attendance.attendanceTime)}{
+                                                        attendance.attendance.coach?.coachName || ''}
+                                                </Text>
+                                            )}
                                         </View>
                                     </View>
                                     <View style={styles.attendanceValue}>

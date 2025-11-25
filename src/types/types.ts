@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { StudentAttendanceDetail } from '@/types/attendance/StudentAttendanceTypes';
 import { UserInfo, User } from '@/types/Auth/UsersTypes';
+import { StudentAttendanceDetail } from '@/types/attendance/StudentAttendanceTypes';
 
 export interface BasicAttendance {
     idStudent: string;

@@ -188,6 +188,7 @@ export default function StudentAttendanceScreen() {
             >
                 <TrialAttendanceScreen
                     setVisible={setVisible}
+                    isModal={true}
                 />
             </Modal>
         </View>

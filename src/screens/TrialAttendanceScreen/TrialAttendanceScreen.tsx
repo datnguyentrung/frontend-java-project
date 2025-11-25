@@ -3,11 +3,12 @@ import React from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { gray, green, red, yellow } from '@styles/colorTypes';
 import TrialAttendanceItemScreen from './TrialAttendanceItemScreen';
-import { getTodayTrialAttendance } from '@/services/attendance/trialAttendanceService';
+import { getAllTrialAttendance, getTodayTrialAttendance } from '@/services/attendance/trialAttendanceService';
 import { TrialAttendanceDetail } from '@/types/attendance/TrialAttendanceTypes';
 
 type Props = {
     setVisible?: (visible: boolean) => void;
+    isModal: boolean | false;
 }
 
 const evaluationCategories = [
@@ -19,14 +20,14 @@ const evaluationCategories = [
 
 const { width } = Dimensions.get('window');
 
-export default function TrialAttendanceScreen({ setVisible }: Props) {
+export default function TrialAttendanceScreen({ setVisible, isModal }: Props) {
     const [trialAttendance, setTrialAttendance] = React.useState<TrialAttendanceDetail[]>([]);
 
     // ✅ Function để refresh trial attendance data
     const refreshTrialAttendance = React.useCallback(async () => {
         try {
             console.log('🔄 Refreshing trial attendance data...');
-            const data = await getTodayTrialAttendance();
+            const data = isModal ? await getTodayTrialAttendance() : await getAllTrialAttendance();
             setTrialAttendance(data);
             console.log('✅ Trial attendance data refreshed');
         } catch (error) {
@@ -40,7 +41,7 @@ export default function TrialAttendanceScreen({ setVisible }: Props) {
 
         const loadTrialAttendanceData = async () => {
             try {
-                const data = await getTodayTrialAttendance();
+                const data = isModal ? await getTodayTrialAttendance() : await getAllTrialAttendance();
                 if (isMounted) {
                     setTrialAttendance(data);
                 }
@@ -118,7 +119,7 @@ export default function TrialAttendanceScreen({ setVisible }: Props) {
     return (
         <View style={styles.modal}>
             <FlatList
-                data={trialAttendance}
+                data={trialAttendance.sort((a, b) => a.attendanceDate > b.attendanceDate ? -1 : 1)}
                 keyExtractor={(item, index) => index.toString()}
                 ListHeaderComponent={renderHeader}
                 renderItem={({ item, index }) => (
@@ -127,6 +128,7 @@ export default function TrialAttendanceScreen({ setVisible }: Props) {
                         index={index}
                         onEvaluationChange={handleEvaluationChange}
                         refreshTrialAttendance={refreshTrialAttendance}
+                        isModal={isModal}
                     />
                 )}
                 contentContainerStyle={{ paddingBottom: 20 }}

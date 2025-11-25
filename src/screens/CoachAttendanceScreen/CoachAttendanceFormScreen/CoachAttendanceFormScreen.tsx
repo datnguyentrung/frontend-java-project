@@ -12,7 +12,8 @@ import { useNavigation } from '@react-navigation/native';
 import { getBytescaleAuthToken } from '@/services/upload/BytescaleUploadController';
 import { createCoachAttendance } from '@/services/attendance/coachAttendanceService';
 import { uploadFileWithAuth } from '@/utils/uploadToBytescale';
-import { formatDateDMYHM } from '@/utils/format';
+import { formatDateDMYHM, formatDateTimeForBackend } from '@/utils/format';
+import dayjs from 'dayjs';
 
 const shiftOptions = [
     { label: 'Ca 1', value: '1' },
@@ -83,7 +84,7 @@ export default function CoachAttendanceFormScreen() {
 
         const requestData: CreateRequest = {
             idClassSession,
-            createdAt: new Date(new Date().getTime()),
+            createdAt: formatDateTimeForBackend(Date.now()),
             ...(fileName && { fileName }),   // chỉ thêm nếu fileName tồn tại
             ...(idCoach && { idAccount: idCoach }), // chỉ thêm nếu idCoach tồn tại
         };
