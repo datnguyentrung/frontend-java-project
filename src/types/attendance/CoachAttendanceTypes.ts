@@ -4,7 +4,7 @@ export interface CreateRequest {
     createdAt: Date | string;
     fileName?: string;
     idClassSession: string;
-    idAccount?: string;
+    idUser?: string;
 }
 
 export interface CoachAttendanceKey {
